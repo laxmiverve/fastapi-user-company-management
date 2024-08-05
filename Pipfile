@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-dotenv = "*"
+pymysql = "*"
+fastapi-pagination = "*"
+passlib = "*"
+crypto = "*"
+pycryptodome = "*"
+python-jose = "*"
+pydantic = {extras = ["email"], version = "*"}
+pydantic-settings = "*"
+python-multipart = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
+
+[scripts]
+main = "bash -c 'python main.py'"
