@@ -1,0 +1,23 @@
+{
+    "user_register" : "User registered successfully",
+    "user_already_exists" : "User already exist",
+    "user_list_found" :"User list found successfully",
+    "user_list_not_found" : "User list not found",
+    "get_user_by_id" : "User Found Successfully",
+    "get_user_by_id_not_found" : "User with id is not available",
+    "delete_user_by_id" : "User deleted successfully",
+    "delete_user_by_id_not_found" : "User Not Found",
+    "update_current_logged_user" : "User updated successfully",
+    "update_current_logged_user_error" : "Failed to update user information",
+
+    "user_login" : "Logged in successfully",
+    "user_not_authorized" : "Invalid Credentials",
+
+    "sent_otp" : "OTP sent successfully",
+    "sent_otp_error" : "Invalid Email",
+    "otp_verified" : "OTP verified successfully",
+    "otp_verify_error" : "Verification was Unsuccessful;",
+
+    "change_password_success" : "Password changed successfully",
+    "change_password_error" : "Wrong OTP"
+}
