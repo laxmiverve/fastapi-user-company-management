@@ -5,13 +5,12 @@ from sqlalchemy import Column, Integer, String
 
 # create new user
 class UserModel(Base):
-    __tablename__ = 'companyTable'
+    __tablename__ = 'usertable'
 
     id = Column(Integer, primary_key = True, index = True)
-    company_name = Column(String(100), nullable = False)
-    company_email = Column(String(100), unique = True, nullable = False)
+    name = Column(String(100), nullable = True)
+    email = Column(String(100), unique = True, nullable = False)
     password = Column(String(100), nullable = False)
-    company_zipcode = Column(String(10), nullable = True)
-    company_city = Column(String(50), nullable = True)
-    company_state = Column(String(50), nullable = True)
-    company_country = Column(String(50), nullable = False)
+    city = Column(String(50), nullable = True)
+    state = Column(String(50), nullable = True)
+    country = Column(String(50), nullable = True)
