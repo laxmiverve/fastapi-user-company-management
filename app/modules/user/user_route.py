@@ -101,7 +101,7 @@ def register_user(user_data: UserRegisterSchema, db: Session = Depends(get_db)):
 
 # Get all user information
 # @router.get("/user/list", summary="List of users", dependencies=[Depends(JWTBearer())])
-@router.get("/user/list", summary="List of users", response_model = ResponseSchema[List[UserResponseSchema]])
+@router.get("/user/list", summary="List of users", response_model = ResponseSchema[List[UserResponseSchema]], dependencies = [Depends(JWTBearer())])
 def read_users(params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     all_users = user_service.get_all_users(db=db, params=params, sort_by=sort_by, sort_direction=sort_direction)
     if all_users:
@@ -116,7 +116,7 @@ def read_users(params: Params = Depends(), db: Session = Depends(get_db), sort_b
 
 # Get user information by id
 # @router.get('/user/{id}', summary="Get user", dependencies=[Depends(JWTBearer())])
-@router.get('/user/{id}', summary="Get user",  response_model = ResponseSchema[UserResponseSchema])
+@router.get('/user/{id}', summary="Get user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def get_user(id: int, db: Session = Depends(get_db)):
     user = user_service.show_user(id = id, db = db)
@@ -131,7 +131,7 @@ def get_user(id: int, db: Session = Depends(get_db)):
 
 # Delete user by id
 # @router.delete('/user/delete/{id}', summary="Delete user", dependencies=[Depends(JWTBearer())])
-@router.delete('/user/delete/{id}', summary="Delete user", response_model = ResponseSchema[UserResponseSchema])
+@router.delete('/user/delete/{id}', summary="Delete user", response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def delete_user(id: int, db: Session = Depends(get_db)):
     delete_user = user_service.delete_user_info(id = id, db = db)
@@ -146,7 +146,7 @@ def delete_user(id: int, db: Session = Depends(get_db)):
 
 # Update user
 # @router.put('/user/update', summary="Update user", dependencies=[Depends(JWTBearer())])
-@router.put('/user/update', summary="Update user",  response_model = ResponseSchema[UserResponseSchema])
+@router.put('/user/update', summary="Update user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def update_user_info(user_update_data: UserUpdateSchema, token: str = Depends(JWTBearer()), db: Session = Depends(get_db)):
     update_user = user_service.update_user_info(user_update_data = user_update_data, token = token, db = db)

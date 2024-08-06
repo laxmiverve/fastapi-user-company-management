@@ -6,6 +6,7 @@ from fastapi_pagination import add_pagination
 from app.modules.user import user_route
 from app.modules.login import login_route
 from app.modules.forgot_password import forget_password_route
+from app.modules.company import company_routes
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -31,8 +32,9 @@ session = SessionLocal()
 def welcome():
     return {"message": "Welcome to the FastAPI Project"}
 
-app.include_router(user_route.router)
 app.include_router(login_route.router)
+app.include_router(user_route.router)
+app.include_router(company_routes.router)
 app.include_router(forget_password_route.router)
 
 

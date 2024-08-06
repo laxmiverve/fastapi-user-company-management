@@ -10,6 +10,18 @@
     "update_current_logged_user" : "User updated successfully",
     "update_current_logged_user_error" : "Failed to update user information",
 
+    "company_register" : "New company registered successfully",
+    "company_already_exists" : "Company already exist",
+    "company_list_found" :"Company list found successfully",
+    "company_list_not_found" : "Company list not found",
+    "get_company_by_id" : "Company Found Successfully",
+    "get_company_by_id_not_found" : "Company with id is not available",
+    "delete_company_by_id" : "Company deleted successfully",
+    "delete_company_by_id_not_found" : "Company Not Found",
+    "update_company_by_id" : "Company updated successfully",
+    "update_company_by_id_not_found" : "Failed to update company infornmation",
+
+
     "user_login" : "Logged in successfully",
     "user_not_authorized" : "Invalid Credentials",
 

@@ -56,7 +56,7 @@ from app.schemas.user_forget_password_schema import *
 from app.schemas.forget_password_response_schema import *
 from config.database import get_db, msg
 
-router = APIRouter(tags=["Forgot Password"])
+router = APIRouter(tags=["User Forgot Password"])
 
 # send forgot password OTP
 @router.post("/otp_sent", summary = "Send forgot password OTP", response_model = ResponseSchema[SentOtpResponseSchema])
