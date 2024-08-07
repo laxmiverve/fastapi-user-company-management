@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, load_only, joinedload
 from app.auth.jwt_handler import decode_jwt_token
 from app.hashing.password_hash import Hash
 from app.models.company_model import CompanyModel
+from app.models.roles_model import Role
 from app.models.user_model import UserModel
 from app.schemas.user_register_schema import UserRegisterSchema
 from app.schemas.user_update_schema import UserUpdateSchema
@@ -17,7 +18,11 @@ def create_user(user_data: UserRegisterSchema, db: Session):
 
         if existing_user:
             return None
-
+        
+        # role = db.query(Role).filter(Role.id == user_data.role_id).first()
+        # if not role:
+        #     return {"message" : "Invalid role id"}
+        
         new_user = UserModel(
             name = user_data.name,
             email = user_data.email,
@@ -25,6 +30,7 @@ def create_user(user_data: UserRegisterSchema, db: Session):
             city = user_data.city,
             state = user_data.state,
             country = user_data.country,
+            role_id=user_data.role_id
         )
 
         db.add(new_user)
@@ -34,6 +40,8 @@ def create_user(user_data: UserRegisterSchema, db: Session):
         return new_user
     except Exception as e:
         print("Exception occurred:", str(e))
+
+
 
 
 

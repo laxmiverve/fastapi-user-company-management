@@ -8,3 +8,4 @@ class LoginResponseSchema(BaseModel):
     name: str
     email: EmailStr
     access_token: str
+    role: str

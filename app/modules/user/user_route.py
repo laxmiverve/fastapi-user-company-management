@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from fastapi_pagination import Params
+from app.models.roles_model import Role
 from app.modules.user import user_service
 from config.database import get_db, msg
 from app.schemas.response_schema import ResponseSchema
@@ -16,6 +17,11 @@ router = APIRouter(tags=["User"])
 # New user register
 @router.post('/user/register', summary="Register new users", response_model = ResponseSchema[UserResponseSchema])
 def register_user(user_data: UserRegisterSchema, db: Session = Depends(get_db)):
+
+    role = db.query(Role).filter(Role.id == user_data.role_id).first()
+    if not role:
+        return ResponseSchema(status = False, response = msg["invalid_role_id"], data=None)
+    
     new_user = user_service.create_user(user_data = user_data, db = db)
     if new_user is not None:
         return ResponseSchema(status = True, response = msg['user_register'], data = new_user.__dict__)

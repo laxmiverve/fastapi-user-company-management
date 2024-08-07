@@ -1,6 +1,7 @@
 {
     "user_register" : "User registered successfully",
     "user_already_exists" : "User already exist",
+    "invalid_role_id" : "Invalid role id | Role id is either 1 or 2",
     "user_list_found" :"User list found successfully",
     "user_list_not_found" : "User list not found",
     "get_user_by_id" : "User Found Successfully",
@@ -12,6 +13,7 @@
 
     "company_register" : "New company registered successfully",
     "company_already_exists" : "Company already exist",
+    "not_allowed": "Not access to create a company",
     "company_list_found" :"Company list found successfully",
     "company_list_not_found" : "Company list not found",
     "get_company_by_id" : "Company Found Successfully",
