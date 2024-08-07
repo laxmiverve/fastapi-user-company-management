@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 class CompanyCreatorSchema(BaseModel):
     name: str
-    city: str
-    state: str
+    email: str
+    country: str
 
     class Config:
         from_attributes = True

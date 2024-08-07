@@ -43,9 +43,8 @@ def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
 # get all company information
 def get_all_company(db: Session, params: Params, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     try:
-        all_company = db.query(CompanyModel).options(load_only(CompanyModel.id, CompanyModel.company_email, CompanyModel.company_name, CompanyModel.company_city, CompanyModel.company_country, CompanyModel.company_state), joinedload(CompanyModel.company_creator).options(load_only(UserModel.name, UserModel.city, UserModel.state)))
+        all_company = db.query(CompanyModel).options(load_only(CompanyModel.id, CompanyModel.company_email, CompanyModel.company_name, CompanyModel.company_city, CompanyModel.company_country, CompanyModel.company_state), joinedload(CompanyModel.company_creator).options(load_only(UserModel.name, UserModel.email, UserModel.country)))
 
-        print("====================================================", all_company)
 
         if sort_by and sort_direction:
             if sort_direction == "desc":
@@ -54,8 +53,6 @@ def get_all_company(db: Session, params: Params, sort_by: Optional[str] = None, 
                 all_company = all_company.order_by(getattr(CompanyModel, sort_by).asc())
         
         paginated_company = paginate(all_company, params = params)
-        print("=====paginated_company===============================================", paginated_company.__dict__)
-
         return paginated_company
     
     except Exception as e:
