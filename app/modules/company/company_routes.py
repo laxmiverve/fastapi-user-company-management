@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Header, status
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session
 from app.auth.jwt_bearer import JWTBearer
+from app.auth.jwt_handler import decode_jwt_token
+from app.models.user_model import UserModel
 from app.modules.company import company_service
 from config.database import get_db, msg
 from typing import List, Optional
@@ -14,14 +16,36 @@ router = APIRouter(tags = ["Company"])
 
 
 # Register a new company
-@router.post("/company/register", summary = "Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
-def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db)):
-    new_company = company_service.create_company(company = company, db = db)
-    if new_company is not None:
-        return ResponseSchema(status = True, response = msg["company_register"], data = new_company.__dict__)
-    else:
-        return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
+# @router.post("/company/register", summary = "Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
+# def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db)):
+#     new_company = company_service.create_company(company = company, db = db)
+#     if new_company is not None:
+#         return ResponseSchema(status = True, response = msg["company_register"], data = new_company.__dict__)
+#     else:
+#         return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
+
+
+
+@router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
+    email = decode_jwt_token(token)
     
+    if email is None:
+        return None
+
+    user = db.query(UserModel).filter(UserModel.email == email).first()
+    if not user:
+        return None
+
+    new_company = company_service.create_company(company=company, user_id=user.id, db=db)
+
+    if new_company:
+        return ResponseSchema(status=True,  response=msg["company_register"],  data=new_company.__dict__)
+    else:
+        return ResponseSchema(status=False,  response=msg["company_already_exists"],  data=None)
+
+
+
 
 # Get all company list 
 @router.get("/company/list", summary="List of company", response_model = ResponseSchema[List[CompanyResponseSchema]], dependencies = [Depends(JWTBearer())])

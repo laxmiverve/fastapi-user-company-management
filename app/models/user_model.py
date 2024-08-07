@@ -17,4 +17,4 @@ class UserModel(Base):
     country = Column(String(50), nullable = True)
 
 
-    # companies = relationship( 'CompanyModel', back_populates = 'company_creator', primaryjoin = 'CompanyModel.user_id == UserModel.id', lazy = 'joined')
+    companies = relationship( 'CompanyModel', back_populates = 'company_creator', primaryjoin = 'CompanyModel.user_id == UserModel.id', lazy = 'joined')

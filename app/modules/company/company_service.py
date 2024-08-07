@@ -9,10 +9,14 @@ from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 
 
+
 # create a new company
-def create_company(company: CompanyRegisterSchema, db: Session):
+def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
     try:
         existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company.company_email).first()
+
+        if existing_company:
+            return None
 
         new_company = CompanyModel(
             company_name = company.company_name,
@@ -21,7 +25,8 @@ def create_company(company: CompanyRegisterSchema, db: Session):
             company_zipcode = company.company_zipcode,
             company_city = company.company_city,
             company_state = company.company_state,
-            company_country = company.company_country
+            company_country = company.company_country,
+            user_id = user_id  
         )
         db.add(new_company)
         db.commit()
@@ -29,7 +34,8 @@ def create_company(company: CompanyRegisterSchema, db: Session):
 
         return new_company
     except Exception as e:
-        print("Exception occur", str(e))
+        print("Exception occurred", str(e))
+
 
 
 
