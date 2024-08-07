@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session
 from app.auth.jwt_bearer import JWTBearer

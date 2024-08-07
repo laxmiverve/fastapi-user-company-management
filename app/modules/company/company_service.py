@@ -2,8 +2,6 @@ from typing import Optional
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session, load_only, joinedload
-from app.auth.jwt_handler import decode_jwt_token
-from app.hashing.password_hash import Hash
 from app.models.company_model import CompanyModel
 from app.models.user_model import UserModel
 from app.schemas.company_register_schema import CompanyRegisterSchema

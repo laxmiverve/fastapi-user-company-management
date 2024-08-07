@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 from fastapi import HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params

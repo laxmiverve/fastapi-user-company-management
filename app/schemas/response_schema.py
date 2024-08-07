@@ -8,15 +8,11 @@
 #     data: Union[Optional[dict], Optional[list], None] = None
 
 #     class Config():
-#         # orm_mode = True
 #         from_attributes=True
 
 
-
-
-
 from pydantic import BaseModel
-from typing import TypeVar, Generic, Optional, List
+from typing import TypeVar, Generic, Optional
 
 T = TypeVar('T')
 
