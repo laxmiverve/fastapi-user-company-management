@@ -10,5 +10,4 @@ class UserRegisterSchema(BaseModel):
     country: Optional[str] = None
 
     class Config():
-        # orm_mode = True
-        from_attributes=True
+        from_attributes = True

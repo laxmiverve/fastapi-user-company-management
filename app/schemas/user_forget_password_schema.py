@@ -6,7 +6,7 @@ class SentForgotPasswordOTPSchema(BaseModel):
 
 
 class VerifyForgotPasswordOTPSchema(BaseModel):
-    email:EmailStr
+    email: EmailStr
     otp: int
 
 

@@ -14,18 +14,7 @@ from app.schemas.company_update_schema import CompanyUpdateSchema
 
 router = APIRouter(tags = ["Company"])
 
-
 # Register a new company
-# @router.post("/company/register", summary = "Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
-# def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db)):
-#     new_company = company_service.create_company(company = company, db = db)
-#     if new_company is not None:
-#         return ResponseSchema(status = True, response = msg["company_register"], data = new_company.__dict__)
-#     else:
-#         return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
-
-
-
 @router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
@@ -43,7 +32,6 @@ def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_d
         return ResponseSchema(status=True,  response=msg["company_register"],  data=new_company.__dict__)
     else:
         return ResponseSchema(status=False,  response=msg["company_already_exists"],  data=None)
-
 
 
 
