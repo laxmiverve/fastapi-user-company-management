@@ -1,5 +1,15 @@
 from pydantic import BaseModel
 
+
+class CompanyCreatorSchema(BaseModel):
+    name: str
+    city: str
+    state: str
+
+    class Config:
+        from_attributes = True
+
+
 class CompanyResponseSchema(BaseModel):
     id: int
     company_name: str
@@ -9,6 +19,7 @@ class CompanyResponseSchema(BaseModel):
     company_city: str
     company_state: str
     company_country: str
+    company_creator: CompanyCreatorSchema
 
     # user_id: int
 

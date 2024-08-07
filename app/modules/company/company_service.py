@@ -1,10 +1,11 @@
 from typing import Optional
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
-from sqlalchemy.orm import Session, load_only
+from sqlalchemy.orm import Session, load_only, joinedload
 from app.auth.jwt_handler import decode_jwt_token
 from app.hashing.password_hash import Hash
 from app.models.company_model import CompanyModel
+from app.models.user_model import UserModel
 from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 
@@ -42,7 +43,9 @@ def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
 # get all company information
 def get_all_company(db: Session, params: Params, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     try:
-        all_company = db.query(CompanyModel).options(load_only(CompanyModel.id, CompanyModel.company_email, CompanyModel.company_name, CompanyModel.company_city, CompanyModel.company_country, CompanyModel.company_state))
+        all_company = db.query(CompanyModel).options(load_only(CompanyModel.id, CompanyModel.company_email, CompanyModel.company_name, CompanyModel.company_city, CompanyModel.company_country, CompanyModel.company_state), joinedload(CompanyModel.company_creator).options(load_only(UserModel.name, UserModel.city, UserModel.state)))
+
+        print("====================================================", all_company)
 
         if sort_by and sort_direction:
             if sort_direction == "desc":
@@ -51,6 +54,8 @@ def get_all_company(db: Session, params: Params, sort_by: Optional[str] = None, 
                 all_company = all_company.order_by(getattr(CompanyModel, sort_by).asc())
         
         paginated_company = paginate(all_company, params = params)
+        print("=====paginated_company===============================================", paginated_company.__dict__)
+
         return paginated_company
     
     except Exception as e:
