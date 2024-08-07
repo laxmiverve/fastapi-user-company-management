@@ -70,7 +70,7 @@ def show_user(id: int, db: Session):
 
 
 
-# Update user
+# Update current logged user
 def update_user_info(user_update_data: UserUpdateSchema, token: str, db: Session):
     try:
         user_email = decode_jwt_token(token)

@@ -24,17 +24,14 @@ def register_user(user_data: UserRegisterSchema, db: Session = Depends(get_db)):
         
 
 
-
 # Get all user information
 @router.get( "/user/list", summary = "List of users", response_model = ResponseSchema[List[UserResponseSchema]], dependencies =[Depends(JWTBearer())])
-def read_users( params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
+def list_users( params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     all_users = user_service.get_all_users(db = db, params = params, sort_by = sort_by, sort_direction = sort_direction)
     if all_users:
         return ResponseSchema(status = True, response = msg['user_list_found'], data = all_users.items)
     else:
         return ResponseSchema(status = False, response = msg['user_list_not_found'], data = None)
-
-
 
 
 
@@ -50,8 +47,6 @@ def get_user(id: int, db: Session = Depends(get_db)):
 
 
 
-
-
 # Delete user by id
 @router.delete('/user/delete/{id}', summary="Delete user", response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
@@ -64,9 +59,7 @@ def delete_user(id: int, db: Session = Depends(get_db)):
 
 
 
-
-
-# Update user
+# Update current logged user
 @router.put('/user/update', summary="Update user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def update_user_info(user_update_data: UserUpdateSchema, token: str = Depends(JWTBearer()), db: Session = Depends(get_db)):

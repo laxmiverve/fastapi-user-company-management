@@ -37,7 +37,7 @@ def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_d
 
 # Get all company list 
 @router.get("/company/list", summary="List of company", response_model = ResponseSchema[List[CompanyResponseSchema]], dependencies = [Depends(JWTBearer())])
-def read_users(params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
+def list_companies(params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     all_comapny = company_service.get_all_company(db = db, params = params, sort_by = sort_by, sort_direction = sort_direction)
     if all_comapny:
         return ResponseSchema(status = True, response = msg["company_list_found"], data = all_comapny.items) 
@@ -48,7 +48,7 @@ def read_users(params: Params = Depends(), db: Session = Depends(get_db), sort_b
 
 # Get company information by id 
 @router.get("/company/{company_id}", summary = "Get company information by id", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
-def read_company(company_id: int, db: Session = Depends(get_db)):
+def view_company(company_id: int, db: Session = Depends(get_db)):
     get_company = company_service.get_company_by_id(company_id = company_id, db = db)
     if get_company is not None:
         return ResponseSchema(status = True, response = msg["get_company_by_id"], data = get_company.__dict__)
