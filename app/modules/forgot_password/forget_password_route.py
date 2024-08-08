@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
 from app.modules.forgot_password import forget_password_service
 from app.schemas.response_schema import ResponseSchema
@@ -10,8 +10,8 @@ router = APIRouter(tags=["Forgot Password"])
 
 # send forgot password OTP
 @router.post("/otp_sent", summary = "Send forgot password OTP", response_model = ResponseSchema[SentOtpResponseSchema])
-def forgot_password(request: SentForgotPasswordOTPSchema, db: Session = Depends(get_db)):
-    forget_pwd = forget_password_service.send_forgot_password_otp(email = request.email, db = db)
+def forgot_password(request: SentForgotPasswordOTPSchema, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    forget_pwd = forget_password_service.send_forgot_password_otp(email = request.email, background_tasks = background_tasks, db = db)
     if forget_pwd is not None:
         return ResponseSchema(status = True, response = msg['sent_otp'], data = forget_pwd)
     else:

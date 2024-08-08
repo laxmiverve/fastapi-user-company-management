@@ -1,4 +1,5 @@
 from typing import Dict, Tuple
+from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 from app.helper.email_sender import Helper
 from app.models.user_model import UserModel
@@ -10,7 +11,7 @@ otp_storage: Dict[str, Tuple[str, datetime]] = {}
 
 
 # send forgot password OTP
-def send_forgot_password_otp(email: str, db: Session):
+def send_forgot_password_otp(email: str, background_tasks: BackgroundTasks, db: Session):
     try:
         user = db.query(UserModel).filter(UserModel.email == email).first()
         if not user:
@@ -22,7 +23,9 @@ def send_forgot_password_otp(email: str, db: Session):
         expiration_time = datetime.now() + timedelta(minutes = 10)
         otp_storage[email] = (otp, expiration_time)
 
-        Helper.send_email(email, otp)
+        # Helper.send_email(email, otp)
+        background_tasks.add_task(send_email_task, email, otp)
+
         return {
             "message": "OTP sent to the email",
             "otp": otp 
@@ -31,6 +34,10 @@ def send_forgot_password_otp(email: str, db: Session):
     except Exception as e:
         print("Exception Occurred:", str(e))
         return None
+
+# Background task to send an email 
+def send_email_task(receiver_email: str, otp: str):
+    Helper.send_email(receiver_email, otp)
 
 
 
