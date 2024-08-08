@@ -19,7 +19,7 @@ def send_forgot_password_otp(email: str, db: Session):
         otp = Helper.generate_otp()
 
         # store OTP and expiration time in the dictionary 
-        expiration_time = datetime.now() + timedelta(minutes=15)
+        expiration_time = datetime.now() + timedelta(minutes = 10)
         otp_storage[email] = (otp, expiration_time)
 
         Helper.send_email(email, otp)

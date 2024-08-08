@@ -32,8 +32,8 @@ def register_user(user_data: UserRegisterSchema, db: Session = Depends(get_db)):
 
 # Get all user information
 @router.get( "/list", summary = "List of users", response_model = ResponseSchema[List[UserResponseSchema]], dependencies =[Depends(JWTBearer())])
-def list_users( params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
-    all_users = user_service.get_all_users(db = db, params = params, sort_by = sort_by, sort_direction = sort_direction)
+def list_users( params: Params = Depends(), db: Session = Depends(get_db), search_string: Optional[str] = None, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
+    all_users = user_service.get_all_users(db = db, params = params, search_string = search_string, sort_by = sort_by, sort_direction = sort_direction)
     if all_users:
         return ResponseSchema(status = True, response = msg['user_list_found'], data = all_users.items)
     else:

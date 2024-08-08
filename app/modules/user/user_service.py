@@ -2,6 +2,7 @@ from typing import Optional
 from fastapi import HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, load_only, joinedload
 from app.auth.jwt_handler import decode_jwt_token
 from app.hashing.password_hash import Hash
@@ -10,6 +11,8 @@ from app.models.roles_model import Role
 from app.models.user_model import UserModel
 from app.schemas.user_register_schema import UserRegisterSchema
 from app.schemas.user_update_schema import UserUpdateSchema
+
+
 
 # New user register
 def create_user(user_data: UserRegisterSchema, db: Session):
@@ -44,19 +47,26 @@ def create_user(user_data: UserRegisterSchema, db: Session):
 
 
 
-
 # Get all user information
-def get_all_users(db: Session, params: Params, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
+def get_all_users(db: Session, params: Params, search_string: str, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     try:
-        query = db.query(UserModel).options(load_only(UserModel.email, UserModel.name, UserModel.city, UserModel.country, UserModel.state), joinedload(UserModel.companies).load_only(CompanyModel.id, CompanyModel.company_name, CompanyModel.company_email, CompanyModel.company_country))
+        all_user = db.query(UserModel).options(load_only(UserModel.email, UserModel.name, UserModel.city, UserModel.country, UserModel.state), joinedload(UserModel.companies).load_only(CompanyModel.id, CompanyModel.company_name, CompanyModel.company_email, CompanyModel.company_country))
 
         if sort_by and sort_direction:
             if sort_direction == "desc":
-                query = query.order_by(getattr(UserModel, sort_by).desc())
+                all_user = all_user.order_by(getattr(UserModel, sort_by).desc())
             elif sort_direction == "asc":
-                query = query.order_by(getattr(UserModel, sort_by).asc())
+                all_user = all_user.order_by(getattr(UserModel, sort_by).asc())
+            
+        
+        if search_string:
+                all_user = all_user.filter(or_(
+                    UserModel.name.like('%' + search_string + '%'),
+                    UserModel.email.like('%' + search_string + '%')
+                ))
 
-        paginated_users = paginate(query, params = params)
+
+        paginated_users = paginate(all_user, params = params)
         return paginated_users
     except Exception as e:
         print("An exception occurred:", str(e))
@@ -114,8 +124,6 @@ def update_user_info(user_update_data: UserUpdateSchema, token: str, db: Session
 
     except Exception as e:
         print("An exception occurred:", str(e))
-
-
 
 
 
