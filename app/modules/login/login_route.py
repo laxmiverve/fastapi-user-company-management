@@ -6,10 +6,10 @@ from app.schemas.response_schema import ResponseSchema
 from app.schemas.user_login_schema import LoginSchema, LoginResponseSchema
 
 
-router = APIRouter(tags=["Login"])
+router = APIRouter(prefix="/user", tags=["Login"])
 
 # User login
-@router.post('/user/login', summary="User login", response_model = ResponseSchema[LoginResponseSchema])
+@router.post('/login', summary="User login", response_model = ResponseSchema[LoginResponseSchema])
 def login_user(login_data: LoginSchema, db: Session = Depends(get_db)):
     logged_user = user_login_service.login_user(email = login_data.email, password = login_data.password, db = db)
 

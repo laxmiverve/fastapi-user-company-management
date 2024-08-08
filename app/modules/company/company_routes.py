@@ -61,10 +61,10 @@ router = APIRouter(tags = ["Company"])
 # @router.delete("/company/{company_id}", summary = "Delete company by id", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
 # def delete_company(company_id: int, db: Session = Depends(get_db)):
 #     delete_company = company_service.delete_company_by_id(company_id = company_id, db = db)
-#     if delete_company is not None:
-#         return ResponseSchema(status = True, response = msg["delete_company_by_id"], data = delete_company.__dict__)
-#     else:
-#         return ResponseSchema(status = False, response = msg["delete_company_by_id_not_found"], data = None)
+    # if delete_company is not None:
+    #     return ResponseSchema(status = True, response = msg["delete_company_by_id"], data = delete_company.__dict__)
+    # else:
+    #     return ResponseSchema(status = False, response = msg["delete_company_by_id_not_found"], data = None)
     
     
 
@@ -80,7 +80,7 @@ router = APIRouter(tags = ["Company"])
 
 
 
-
+# Register a new company
 @router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
@@ -94,19 +94,19 @@ def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_d
 
     # if the user has role_id 1 (superadmin)
     if user.role_id != 1:
-        return ResponseSchema(status = False, response = msg["not_allowed"], data=None)
+        return ResponseSchema(status = False, response = msg["create_not_authorized"], data=None)
 
-    new_company = company_service.create_company(company=company, user_id=user.id, db=db)
+    new_company = company_service.create_company(company = company, user_id = user.id, db = db)
 
     if new_company:
-        return ResponseSchema(status=True, response = msg["company_register"], data=new_company.__dict__)
+        return ResponseSchema(status = True, response = msg["company_register"], data = new_company.__dict__)
     else:
-        return ResponseSchema(status=False, response = msg["company_already_exists"], data=None)
+        return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
 
 
 
 
-
+# Get all company list 
 @router.get("/company/list", summary="List of companies", response_model=ResponseSchema[List[CompanyResponseSchema]], dependencies=[Depends(JWTBearer())])
 def list_companies(params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None, token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
@@ -121,7 +121,7 @@ def list_companies(params: Params = Depends(), db: Session = Depends(get_db), so
     # if the user has role_id 2 (agent)
     if user.role_id == 2:
         # return None
-        return ResponseSchema(status = False, response = msg["not_allowed"], data=None)
+        return ResponseSchema(status = False, response = msg["view_not_authorized"], data=None)
 
     all_company = company_service.get_all_company(db = db, params = params, sort_by = sort_by, sort_direction = sort_direction)
     if all_company:
@@ -133,7 +133,7 @@ def list_companies(params: Params = Depends(), db: Session = Depends(get_db), so
     
 
 # Get company information by id 
-@router.get("/company/{company_id}", summary = "Get company information by ID", response_model = ResponseSchema[CompanyResponseSchema])
+@router.get("/company/{company_id}", summary = "Get company information by ID", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
 def view_company(company_id: int, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
     
@@ -144,14 +144,58 @@ def view_company(company_id: int, db: Session = Depends(get_db), token: str = De
     if not user:
         return None
     
-    if user.role_id == 2:
-        return ResponseSchema(status = False, response = msg["not_allowed"], data = None)
+    if user.role_id != 2:
+        return ResponseSchema(status = False, response = msg["specific_company_view"], data = None)
 
     get_company = company_service.get_company_by_id(company_id = company_id, db = db)
     if get_company is not None:
         return ResponseSchema(status = True, response = msg["get_company_by_id"], data = get_company.__dict__)
     else:
         return ResponseSchema(status = False, response = msg["get_company_by_id_not_found"], data = None)
+
+
+# Delete compapny by id
+@router.delete("/company/{company_id}", summary="Delete company by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+def delete_company(company_id: int, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
+    email = decode_jwt_token(token)
     
+    if email is None:
+        return None
+    user = db.query(UserModel).filter(UserModel.email == email).first()
+    if not user:
+        return None
+
+    # Check if the user has role_id 1 (superadmin) to allow deletion
+    if user.role_id != 1:
+        return ResponseSchema(status = False, response = msg["delete_not_authorized"], data = None)
+
+    delete_company = company_service.delete_company_by_id(company_id = company_id, db = db)
+    if delete_company is not None:
+        return ResponseSchema(status = True, response = msg["delete_company_by_id"], data = delete_company.__dict__)
+    else:
+        return ResponseSchema(status = False, response = msg["delete_company_by_id_not_found"], data = None)
 
     
+    
+# Update company by id
+@router.put("/company/{company_id}", summary="Update company by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+def update_company(company_data: CompanyUpdateSchema, company_id: int, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
+    email = decode_jwt_token(token)
+    
+    if email is None:
+        return None
+
+    user = db.query(UserModel).filter(UserModel.email == email).first()
+    if not user:
+        return None
+
+    # Check if the user has role_id 1 (superadmin) to allow updates
+    if user.role_id != 1:
+        return ResponseSchema(status = False, response = msg["update_not_authorized"], data = None)
+
+    updated_company = company_service.update_company_by_id(company_id = company_id, db = db, company_data = company_data)
+    if updated_company:
+        return ResponseSchema(status = True, response = msg["update_company_by_id"], data = updated_company.__dict__)
+    else:
+        return ResponseSchema(status = False, response = msg["update_company_by_id_not_found"], data = None)
+
