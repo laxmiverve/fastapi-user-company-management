@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Header, status
 from sqlalchemy.orm import Session
 from app.modules.login import user_login_service
+from app.schemas.user_response_schema import UserInformationSchema
 from config.database import get_db, msg
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.user_login_schema import LoginSchema, LoginResponseSchema
@@ -17,3 +19,19 @@ def login_user(login_data: LoginSchema, db: Session = Depends(get_db)):
         return ResponseSchema(status = True, response = msg['user_login'], data = logged_user)
     else:
         return ResponseSchema(status = False, response = msg['user_not_authorized'], data = None)
+
+
+# Get user information by access token
+@router.get("/info", summary="Get User Information", response_model = ResponseSchema[UserInformationSchema])
+def get_user_info(token: Optional[str] = Header(None), db: Session = Depends(get_db)):
+
+    if not token:
+        return ResponseSchema(status = False, response = msg['access_token_not_found'], data = None)
+
+    user_info = user_login_service.userinfo_by_token(token, db)
+    
+    if user_info is not None:
+        return ResponseSchema(status = True, response = msg['user_info_found'], data = user_info)
+    else:
+        return ResponseSchema(status = False, response = msg["invalid_token"], data = None)
+                              

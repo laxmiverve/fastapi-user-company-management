@@ -30,6 +30,9 @@
 
     "user_login" : "Logged in successfully",
     "user_not_authorized" : "Invalid Credentials",
+    "access_token_not_found" : "Provide the access token",
+    "user_info_found" : "User information found successfully",
+    "invalid_token" : "Invalid access token",
 
     "sent_otp" : "OTP sent successfully",
     "sent_otp_error" : "Invalid Email",

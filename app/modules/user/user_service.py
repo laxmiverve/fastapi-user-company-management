@@ -11,6 +11,8 @@ from app.models.roles_model import Role
 from app.models.user_model import UserModel
 from app.schemas.user_register_schema import UserRegisterSchema
 from app.schemas.user_update_schema import UserUpdateSchema
+from app.helper.email_sender import Helper
+
 
 
 
@@ -33,8 +35,11 @@ def create_user(user_data: UserRegisterSchema, db: Session):
             city = user_data.city,
             state = user_data.state,
             country = user_data.country,
-            role_id=user_data.role_id
+            role_id = user_data.role_id
         )
+
+        # Helper.regd_mail_send(user_data.name, user_data.email)
+        Helper.regd_mail_send(user_data.email)
 
         db.add(new_user)
         db.commit()

@@ -10,6 +10,7 @@ class UserCompanySchema(BaseModel):
     class Config:
         from_attributes = True  
 
+
 class UserResponseSchema(BaseModel):
     id: int
     name: str
@@ -19,6 +20,20 @@ class UserResponseSchema(BaseModel):
     country: str
     # companies: UserCompanySchema
     companies: List[UserCompanySchema] 
+
+    class Config:
+        from_attributes = True  
+
+
+class UserInformationSchema(BaseModel):
+    name: str
+    email: str
+    password: str
+    city: str
+    state: str
+    country: str
+    role_id: int
+    role_name: str  
 
     class Config:
         from_attributes = True  

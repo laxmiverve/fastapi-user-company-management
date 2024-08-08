@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple
 from sqlalchemy.orm import Session
 from app.helper.email_sender import Helper
 from app.models.user_model import UserModel
