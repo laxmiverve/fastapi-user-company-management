@@ -1,7 +1,7 @@
 # SQLAlchemy Models
 
 from config.database import Base
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, String, text
 from sqlalchemy.orm import relationship
 
 
@@ -15,10 +15,13 @@ class UserModel(Base):
     city = Column(String(50), nullable = True)
     state = Column(String(50), nullable = True)
     country = Column(String(50), nullable = True)
-    
-    # users = relationship('UserModel', back_populates='role', primaryjoin='UserModel.role_id == Role.id', lazy='joined')
-    
-    companies = relationship('CompanyModel', back_populates = 'company_creator', primaryjoin = 'CompanyModel.user_id == UserModel.id', lazy = 'joined')
 
+    created_at = Column(TIMESTAMP, nullable = False, server_default = text("CURRENT_TIMESTAMP"))
+    updated_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    deleted_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP"))
+
+    
+    # relationships
+    companies = relationship('CompanyModel', back_populates = 'company_creator', primaryjoin = 'CompanyModel.user_id == UserModel.id', lazy = 'joined')
     role_id = Column(Integer, ForeignKey('role_table.id'), nullable=False)
     role = relationship('Role', back_populates='users', primaryjoin='UserModel.role_id == Role.id', lazy='joined')

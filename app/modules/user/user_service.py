@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
 from sqlalchemy import or_
@@ -17,7 +17,7 @@ from app.helper.email_sender import Helper
 
 
 # New user register
-def create_user(user_data: UserRegisterSchema, db: Session):
+def create_user(user_data: UserRegisterSchema, background_tasks: BackgroundTasks, db: Session):
     try:
         existing_user = db.query(UserModel).filter(UserModel.email == user_data.email).first()
 
@@ -38,8 +38,11 @@ def create_user(user_data: UserRegisterSchema, db: Session):
             role_id = user_data.role_id
         )
 
-        # Helper.regd_mail_send(user_data.name, user_data.email)
-        Helper.regd_mail_send(user_data.email)
+        # Helper.regd_mail_send(user_data.email)
+        def send_email_task():
+            Helper.regd_mail_send(user_data.email)
+        
+        background_tasks.add_task(send_email_task)
 
         db.add(new_user)
         db.commit()

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from fastapi_pagination import Params
@@ -15,18 +15,42 @@ router = APIRouter(prefix="/user", tags=["User"])
 
 
 # New user register
-@router.post('/register', summary="Register new users", response_model = ResponseSchema[UserResponseSchema])
-def register_user(user_data: UserRegisterSchema, db: Session = Depends(get_db)):
+# @router.post('/register', summary="Register new users", response_model = ResponseSchema[UserResponseSchema])
+# def register_user(user_data: UserRegisterSchema, db: Session = Depends(get_db)):
+
+#     role = db.query(Role).filter(Role.id == user_data.role_id).first()
+#     if not role:
+#         return ResponseSchema(status = False, response = msg["invalid_role_id"], data=None)
+    
+#     new_user = user_service.create_user(user_data = user_data, db = db)
+#     if new_user is not None:
+#         return ResponseSchema(status = True, response = msg['user_register'], data = new_user.__dict__)
+#     else:
+#         return ResponseSchema(status = False, response = msg['user_already_exists'], data = None)
+
+@router.post('/register', summary="Register new users", response_model=ResponseSchema[UserResponseSchema])
+def register_user(user_data: UserRegisterSchema, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
 
     role = db.query(Role).filter(Role.id == user_data.role_id).first()
     if not role:
-        return ResponseSchema(status = False, response = msg["invalid_role_id"], data=None)
+        return ResponseSchema(status = False, response = msg["invalid_role_id"], data = None)
     
-    new_user = user_service.create_user(user_data = user_data, db = db)
-    if new_user is not None:
-        return ResponseSchema(status = True, response = msg['user_register'], data = new_user.__dict__)
+    new_user = user_service.create_user(user_data = user_data, background_tasks = background_tasks, db = db)
+    if new_user:
+        new_user_result = {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email,
+            "city": new_user.city,
+            "state": new_user.state,
+            "country": new_user.country,
+            "role_name": role.role_name,
+            "companies": []  
+        }
+        return ResponseSchema(status = True, response = msg['user_register'], data = new_user_result)
     else:
         return ResponseSchema(status = False, response = msg['user_already_exists'], data = None)
+
         
 
 

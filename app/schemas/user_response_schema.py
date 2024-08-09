@@ -19,6 +19,7 @@ class UserResponseSchema(BaseModel):
     state: str
     country: str
     # companies: UserCompanySchema
+    role_name: str
     companies: List[UserCompanySchema] 
 
     class Config:

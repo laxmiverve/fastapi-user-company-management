@@ -1,5 +1,5 @@
 {
-    "user_register" : "User registered successfully",
+    "user_register" : "User registered successfully. A registration email has been sent",
     "user_already_exists" : "User already exist",
     "invalid_role_id" : "Invalid role id | Role id is either 1 or 2",
     "user_list_found" :"User list found successfully",

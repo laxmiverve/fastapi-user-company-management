@@ -6,9 +6,8 @@ from app.models.user_model import UserModel
 from app.hashing.password_hash import Hash
 from datetime import datetime, timedelta
 
+
 otp_storage: Dict[str, Tuple[str, datetime]] = {}
-
-
 
 # send forgot password OTP
 def send_forgot_password_otp(email: str, background_tasks: BackgroundTasks, db: Session):
@@ -16,28 +15,28 @@ def send_forgot_password_otp(email: str, background_tasks: BackgroundTasks, db: 
         user = db.query(UserModel).filter(UserModel.email == email).first()
         if not user:
             return None
-        
+
         otp = Helper.generate_otp()
 
         # store OTP and expiration time in the dictionary 
-        expiration_time = datetime.now() + timedelta(minutes = 10)
+        expiration_time = datetime.now() + timedelta(minutes=10)
         otp_storage[email] = (otp, expiration_time)
 
-        # Helper.send_email(email, otp)
-        background_tasks.add_task(send_email_task, email, otp)
+        # nested function for sending email
+        def send_email_task():
+            Helper.send_email(email, otp)
+
+        # email sending task to the background tasks
+        background_tasks.add_task(send_email_task)
 
         return {
             "message": "OTP sent to the email",
-            "otp": otp 
+            "otp": otp
         }
-    
+
     except Exception as e:
         print("Exception Occurred:", str(e))
         return None
-
-# Background task to send an email 
-def send_email_task(receiver_email: str, otp: str):
-    Helper.send_email(receiver_email, otp)
 
 
 
