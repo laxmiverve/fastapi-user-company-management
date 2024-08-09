@@ -92,7 +92,7 @@ def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_d
     if not user:
         return None
 
-    # if the user has role_id 1 (superadmin)
+    # if the user has role_id 1 (superadmin) to allow register a company
     if user.role_id != 1:
         return ResponseSchema(status = False, response = msg["create_not_authorized"], data=None)
 
@@ -143,6 +143,7 @@ def view_company(company_id: int, db: Session = Depends(get_db), token: str = De
     if not user:
         return None
     
+    # if the user has role_id 1 (superadmin) and role_id 2 (companyadmin) to allow view a company
     if user.role_id != 1 and user.role_id != 2:
         return ResponseSchema(status = False, response = msg["not_allowed_to_view"], data = None)
 
@@ -151,6 +152,7 @@ def view_company(company_id: int, db: Session = Depends(get_db), token: str = De
         return ResponseSchema(status = True, response = msg["get_company_by_id"], data = get_company.__dict__)
     else:
         return ResponseSchema(status = False, response = msg["get_company_by_id_not_found"], data = None)
+
 
 
 # Delete compapny by id
