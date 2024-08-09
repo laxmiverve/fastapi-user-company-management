@@ -6,6 +6,8 @@ from app.models.company_model import CompanyModel
 from app.models.user_model import UserModel
 from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
+from datetime import datetime
+
 
 
 
@@ -25,7 +27,8 @@ def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
             company_city = company.company_city,
             company_state = company.company_state,
             company_country = company.company_country,
-            user_id = user_id  
+            user_id = user_id,
+            created_at=datetime.now()
         )
         db.add(new_company)
         db.commit()
@@ -118,6 +121,8 @@ def update_company_by_id(company_id: int, db: Session, company_data: CompanyUpda
 
         if company_data.company_country is not None:
             existing_company.company_country = company_data.company_country
+        
+        existing_company.updated_at = datetime.now()
 
         db.commit()
         db.refresh(existing_company)

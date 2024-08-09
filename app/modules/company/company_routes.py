@@ -118,9 +118,8 @@ def list_companies(params: Params = Depends(), db: Session = Depends(get_db), so
     if not user:
         return None
 
-    # if the user has role_id 2 (agent)
-    if user.role_id == 2:
-        # return None
+    # if the user has role_id 1 (superadmin) to allow company list view
+    if user.role_id != 1:
         return ResponseSchema(status = False, response = msg["view_not_authorized"], data=None)
 
     all_company = company_service.get_all_company(db = db, params = params, sort_by = sort_by, sort_direction = sort_direction)
@@ -144,8 +143,8 @@ def view_company(company_id: int, db: Session = Depends(get_db), token: str = De
     if not user:
         return None
     
-    if user.role_id != 2:
-        return ResponseSchema(status = False, response = msg["specific_company_view"], data = None)
+    if user.role_id != 1 and user.role_id != 2:
+        return ResponseSchema(status = False, response = msg["not_allowed_to_view"], data = None)
 
     get_company = company_service.get_company_by_id(company_id = company_id, db = db)
     if get_company is not None:

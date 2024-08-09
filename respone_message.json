@@ -15,7 +15,7 @@
     "company_already_exists" : "Company already exist",
     "create_not_authorized" : "Not authorized to create a company",
     "view_not_authorized" : "Not authorized to view company list",
-    "specific_company_view" : "Not authorized to view a company",
+    "not_allowed_to_view" : "Not authorized to view a company",
     "delete_not_authorized" : "Not authorized to delete a company",
     "update_not_authorized" : "Not authorized to update a company",
     "company_list_found" :"Company list found successfully",

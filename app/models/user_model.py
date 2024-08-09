@@ -18,7 +18,6 @@ class UserModel(Base):
 
     created_at = Column(TIMESTAMP, nullable = False, server_default = text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
-    deleted_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP"))
 
     
     # relationships
