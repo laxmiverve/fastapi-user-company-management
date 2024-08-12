@@ -149,7 +149,7 @@ def add_user_to_company(company_id: int, user_id: int, db: Session):
 
 
 
-# get all users of a company
+# get all associated users of a specific company
 def get_company_users(company_id: int, db: Session):
     try:
         company = db.query(CompanyModel).filter(CompanyModel.id == company_id).first()
