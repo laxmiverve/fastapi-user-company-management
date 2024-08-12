@@ -58,9 +58,9 @@ def userinfo_by_token(token: str, db: Session):
             company = db.query(CompanyModel).filter(CompanyModel.id == user_company.company_id).first()
             if company:
                 company_details = CompanyDetailSchema(
-                    company_id=company.id,
-                    company_name=company.company_name,
-                    company_email=company.company_email
+                    company_id = company.id,
+                    company_name = company.company_name,
+                    company_email = company.company_email
                 )
 
         return {
