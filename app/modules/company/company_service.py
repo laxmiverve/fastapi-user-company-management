@@ -158,7 +158,7 @@ def get_company_users(company_id: int, db: Session):
 
         users = db.query(UserModel).join(UserCompany).filter(UserCompany.company_id == company_id).all()
 
-        user_details = [UserDetailSchema(user_id=user.id,user_name=user.name,user_email=user.email)
+        user_details = [UserDetailSchema(user_id = user.id, user_name = user.name, user_email = user.email)
             for user in users
         ]
 
