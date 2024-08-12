@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 
 class CompanyCreatorSchema(BaseModel):
@@ -22,3 +23,23 @@ class CompanyResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True  
+
+
+
+class UserDetailSchema(BaseModel):
+    user_id: int
+    user_name: str
+    user_email: str
+
+    class Config:
+        from_attributes = True
+
+
+class CompanyWithUsersSchema(BaseModel):
+    company_id: int
+    company_name: str
+    company_email: str
+    users: UserDetailSchema
+
+    class Config:
+        from_attributes = True

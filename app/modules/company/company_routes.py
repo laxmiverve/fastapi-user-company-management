@@ -4,13 +4,14 @@ from sqlalchemy.orm import Session
 from app.auth.jwt_bearer import JWTBearer
 from app.auth.jwt_handler import decode_jwt_token
 from app.models.company_model import CompanyModel
+from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
 from app.modules.company import company_service
 from app.schemas.user_company_schema import UserCompanySchema
 from config.database import get_db, msg
 from typing import List, Optional
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.company_response_schema import CompanyResponseSchema
+from app.schemas.company_response_schema import CompanyResponseSchema, CompanyWithUsersSchema, UserDetailSchema
 from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 
@@ -83,7 +84,7 @@ router = APIRouter(tags = ["Company"])
 
 
 # Register a new company
-@router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+@router.post("/company/register", summary="Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
     
@@ -205,43 +206,87 @@ def update_company(company_data: CompanyUpdateSchema, company_id: int, db: Sessi
 
 
 # add user in the specific company 
-@router.post("/company/{company_id}/add_user/{user_id}", summary="Add user to a company", response_model=ResponseSchema[UserCompanySchema], dependencies=[Depends(JWTBearer())])
+@router.post("/company/{company_id}/add_user/{user_id}", summary = "Add user to a company", response_model = ResponseSchema[UserCompanySchema], dependencies = [Depends(JWTBearer())])
 def add_user_to_company_route(company_id: int, user_id: int, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
 
     if email is None:
-        return ResponseSchema(status=False, response=msg["wrong_token"], data=None)
+        return ResponseSchema(status = False, response = msg["wrong_token"], data = None)
 
     user = db.query(UserModel).filter(UserModel.email == email).first()
     if not user:
-        return ResponseSchema(status=False, response=msg["user_not_found"], data=None)
+        return ResponseSchema(status = False, response = msg["user_not_found"], data = None)
+
 
     # check if the user has role_id 2 (companyadmin)
     if user.role_id != 2:
-        return ResponseSchema(status=False, response=msg["not_authorized"], data=None)
+        return ResponseSchema(status = False, response = msg["not_authorized"], data = None)
+
 
     # check if the company exists in the database
     company = db.query(CompanyModel).filter(CompanyModel.id == company_id).first()
     if not company:
-        return ResponseSchema(status=False, response=msg["company_not_found"], data=None)
+        return ResponseSchema(status = False, response = msg["company_not_found"], data = None)
+
 
     # add the user to the company
     user_to_add = db.query(UserModel).filter(UserModel.id == user_id).first()
     if not user_to_add:
-        return ResponseSchema(status=False, response=msg["user_to_add_not_found"], data=None)
+        return ResponseSchema(status = False, response = msg["user_to_add_not_found"], data = None)
+    
 
-    result = company_service.add_user_to_company(company_id=company_id, user_id=user_id, db=db)
+    # check if the user already in the company
+    existing_user_company = db.query(UserCompany).filter_by(user_id = user_id, company_id = company_id).first()
+    if existing_user_company:
+        return ResponseSchema(status = False, response = msg["user_already_in_company"], data = None)
+
+
+    # check if the user is already associated with any other company
+    user_association = db.query(UserCompany).filter_by(user_id=user_id).first()
+    if user_association:
+        user_associated_company = db.query(CompanyModel).filter(CompanyModel.id == user_association.company_id).first()
+        return ResponseSchema(status = False, response = msg["user_in_another_company"].format(company_name = user_associated_company.company_name), data = None)
+
+    result = company_service.add_user_to_company(company_id = company_id, user_id = user_id, db = db)
     if result:
         user_company_schema = UserCompanySchema(
-            user_id=result.user_id,
-            company_id=result.company_id,
-            user_name=user_to_add.name,  
-            user_email=user_to_add.email,
-            company_name=company.company_name,  
-            company_email=company.company_email
+            user_id = result.user_id,
+            company_id = result.company_id,
+            user_name = user_to_add.name,  
+            user_email = user_to_add.email,
+            company_name = company.company_name,  
+            company_email = company.company_email
         )
-        return ResponseSchema(status=True, response=msg["user_added_to_company"], data=user_company_schema)
+        return ResponseSchema(status = True, response = msg["user_added_to_company"], data = user_company_schema)
     else:
-        return ResponseSchema(status=False, response=msg["user_add_failed"], data=None)
+        return ResponseSchema(status = False, response = msg["user_add_failed"], data = None)
+
+
+
+
+# get all users of a company 
+@router.get("/company/{company_id}/users", summary="Get company details with associated users", response_model=ResponseSchema[CompanyWithUsersSchema], dependencies=[Depends(JWTBearer())])
+def get_company_with_users_route(company_id: int, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
+    email = decode_jwt_token(token)
+
+    if email is None:
+        return ResponseSchema(status = False, response = msg["wrong_token"], data = None)
+
+    user = db.query(UserModel).filter(UserModel.email == email).first()
+    if not user:
+        return ResponseSchema(status = False, response = msg["user_not_found"], data = None)
+
+    company_with_users = company_service.get_company_users(company_id = company_id, db = db)
+    
+    if company_with_users:
+        if not company_with_users.users:
+            return ResponseSchema(status = True, response = msg["no_users_found"], data = company_with_users)
+        return ResponseSchema(status = True, response = msg["users_found"], data = company_with_users)
+    else:
+        return ResponseSchema(status = False, response = msg["company_not_found"], data = None)
+
+
+
+
 
 

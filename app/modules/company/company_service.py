@@ -6,6 +6,7 @@ from app.models.company_model import CompanyModel
 from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
 from app.schemas.company_register_schema import CompanyRegisterSchema
+from app.schemas.company_response_schema import CompanyWithUsersSchema, UserDetailSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 from datetime import datetime
 
@@ -131,17 +132,44 @@ def update_company_by_id(company_id: int, db: Session, company_data: CompanyUpda
         print("Exception occurred:", str(e))
 
 
-
+# add user to specific company
 def add_user_to_company(company_id: int, user_id: int, db: Session):
     try:
         user_company = UserCompany(
-            user_id=user_id,
-            company_id=company_id
+            user_id = user_id,
+            company_id = company_id
         )
         db.add(user_company)
         db.commit()
         db.refresh(user_company)
         return user_company
     
+    except Exception as e:
+        print("Exception occurred:", str(e))
+
+
+
+# get all users of a company
+def get_company_users(company_id: int, db: Session):
+    try:
+        company = db.query(CompanyModel).filter(CompanyModel.id == company_id).first()
+        if not company:
+            return None
+
+        users = db.query(UserModel).join(UserCompany).filter(UserCompany.company_id == company_id).all()
+
+        user_details = [UserDetailSchema(user_id=user.id,user_name=user.name,user_email=user.email)
+            for user in users
+        ]
+
+        company_with_users = CompanyWithUsersSchema(
+            company_id=company.id,
+            company_name=company.company_name,
+            company_email=company.company_email,
+            company_country=company.company_country,
+            users=user_details
+        )
+
+        return company_with_users
     except Exception as e:
         print("Exception occurred:", str(e))
