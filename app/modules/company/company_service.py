@@ -29,7 +29,7 @@ def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
             company_state = company.company_state,
             company_country = company.company_country,
             user_id = user_id,
-            created_at=datetime.now()
+            created_at = datetime.now()
         )
         db.add(new_company)
         db.commit()
