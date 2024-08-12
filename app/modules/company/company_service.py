@@ -166,6 +166,7 @@ def get_company_users(company_id: int, db: Session):
             company_id = company.id,
             company_name = company.company_name,
             company_email = company.company_email,
+            company_state = company.company_state,
             company_country = company.company_country,
             users = user_details
         )

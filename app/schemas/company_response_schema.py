@@ -39,7 +39,9 @@ class CompanyWithUsersSchema(BaseModel):
     company_id: int
     company_name: str
     company_email: str
-    users: UserDetailSchema
+    company_state: str
+    company_country: str
+    users: List[UserDetailSchema]
 
     class Config:
         from_attributes = True

@@ -11,7 +11,7 @@ from app.schemas.user_company_schema import UserCompanySchema
 from config.database import get_db, msg
 from typing import List, Optional
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.company_response_schema import CompanyResponseSchema, CompanyWithUsersSchema, UserDetailSchema
+from app.schemas.company_response_schema import CompanyResponseSchema, CompanyWithUsersSchema
 from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 
