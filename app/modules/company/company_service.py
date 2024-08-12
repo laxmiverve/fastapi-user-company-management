@@ -163,11 +163,11 @@ def get_company_users(company_id: int, db: Session):
         ]
 
         company_with_users = CompanyWithUsersSchema(
-            company_id=company.id,
-            company_name=company.company_name,
-            company_email=company.company_email,
-            company_country=company.company_country,
-            users=user_details
+            company_id = company.id,
+            company_name = company.company_name,
+            company_email = company.company_email,
+            company_country = company.company_country,
+            users = user_details
         )
 
         return company_with_users
