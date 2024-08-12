@@ -7,7 +7,7 @@ from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
 from app.schemas.user_response_schema import CompanyDetailSchema
 
-
+# user login
 def login_user(email: str, password: str, db: Session):
     try:
         user = db.query(UserModel).filter(UserModel.email == email).first()
@@ -31,42 +31,6 @@ def login_user(email: str, password: str, db: Session):
     
     except Exception as e:
         print("An exception occurred:", str(e))
-
-
-
-# # get user information by access token
-# def userinfo_by_token(token: str, db: Session):
-#     try:
-#         email = decode_jwt_token(token)
-        
-#         if email is None:
-#             return None
-
-#         user = db.query(UserModel).filter(UserModel.email == email).first()
-        
-#         if not user:
-#             return None
-
-#         role = db.query(Role).filter(Role.id == user.role_id).first()
-#         if not role:
-#             return None
-
-#         return {
-#             "name": user.name,
-#             "email": user.email,
-#             "password": user.password,  
-#             "role_id": user.role_id,
-#             "city": user.city,
-#             "state": user.state,
-#             "country": user.country,
-#             "role_name": role.role_name  
-#         }
-    
-#     except Exception as e:
-#         print("An exception occurred:", str(e))
-
-
-
 
 
 
