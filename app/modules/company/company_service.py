@@ -3,6 +3,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session, load_only, joinedload
 from app.models.company_model import CompanyModel
+from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
 from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
@@ -131,3 +132,18 @@ def update_company_by_id(company_id: int, db: Session, company_data: CompanyUpda
     except Exception as e:
         print("Exception occurred:", str(e))
 
+
+
+def add_user_to_company(company_id: int, user_id: int, db: Session):
+    try:
+        user_company = UserCompany(
+            user_id=user_id,
+            company_id=company_id
+        )
+        db.add(user_company)
+        db.commit()
+        db.refresh(user_company)
+        return user_company
+    
+    except Exception as e:
+        print("Exception occurred:", str(e))

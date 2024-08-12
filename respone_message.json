@@ -40,5 +40,12 @@
     "otp_verify_error" : "Verification was Unsuccessful;",
 
     "change_password_success" : "Password changed successfully",
-    "change_password_error" : "Wrong OTP"
+    "change_password_error" : "Wrong OTP",
+
+    "wrong_token": "Invalid token",
+    "user_not_found": "User not found",
+    "not_authorized": "Not authorized to add user in a company",
+    "company_not_found": "Company not found",
+    "user_to_add_not_found": "User to add not found",
+    "user_added_to_company": "User successfully added to the company"
 }
