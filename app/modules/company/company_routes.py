@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from app.auth.jwt_bearer import JWTBearer
 from app.auth.jwt_handler import decode_jwt_token
 from app.models.company_model import CompanyModel
-from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
 from app.modules.company import company_service
 from app.schemas.user_company_schema import UserCompanySchema
