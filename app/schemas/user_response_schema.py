@@ -25,8 +25,6 @@ class UserResponseSchema(BaseModel):
         from_attributes = True  
 
 
-
-
 class CompanyDetailSchema(BaseModel):
     company_id: int
     company_name: str
@@ -34,6 +32,8 @@ class CompanyDetailSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
 
 class UserInformationSchema(BaseModel):
     user_id: int
