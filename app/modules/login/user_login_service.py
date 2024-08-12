@@ -78,7 +78,4 @@ def userinfo_by_token(token: str, db: Session):
     except Exception as e:
         print("An exception occurred:", str(e))
         return None
-
-
-
-
+    
