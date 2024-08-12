@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 
 password_context = CryptContext(schemes = ["bcrypt"], deprecated = "auto")
 
-
+# convert the plain password to hashed password 
 class Hash: 
     def bcrypt(password: str):
         return password_context.hash(password)

@@ -10,7 +10,7 @@ hashing_algorithm = os.getenv("ALGORITHM")
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
- 
+# create the access token 
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes = ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -19,6 +19,7 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
+# decode the access token 
 def decode_jwt_token(token: str):
     try:
         decoded_token = jwt.decode(token, secret_key, algorithms = [hashing_algorithm])

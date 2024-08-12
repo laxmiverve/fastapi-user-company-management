@@ -4,7 +4,7 @@ from app.auth.jwt_handler import create_access_token, decode_jwt_token
 from app.models.roles_model import Role
 from app.models.user_model import UserModel
 
-
+# user login
 def login_user(email: str, password: str, db: Session):
     try:
         user = db.query(UserModel).filter(UserModel.email == email).first()

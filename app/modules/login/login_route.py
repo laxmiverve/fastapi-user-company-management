@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 from app.modules.login import user_login_service
 from app.schemas.user_response_schema import UserInformationSchema

@@ -8,4 +8,4 @@ class Role(Base):
     role_name = Column(String(100), nullable = False)
 
     # relationships
-    users = relationship('UserModel', back_populates='role', primaryjoin='UserModel.role_id == Role.id', lazy='joined')
+    users = relationship('UserModel', back_populates = 'role', primaryjoin = 'UserModel.role_id == Role.id', lazy = 'joined')

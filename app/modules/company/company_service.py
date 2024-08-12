@@ -10,8 +10,6 @@ from app.schemas.company_update_schema import CompanyUpdateSchema
 from datetime import datetime
 
 
-
-
 # create a new company
 def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
     try:
