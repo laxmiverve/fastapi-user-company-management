@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 # create a new company
-def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
+def create_company(company: CompanyRegisterSchema, profile_img_filename: Optional[str], user_id: int, db: Session):
     try:
         existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company.company_email).first()
 
@@ -28,6 +28,7 @@ def create_company(company: CompanyRegisterSchema, user_id: int, db: Session):
             company_state = company.company_state,
             company_country = company.company_country,
             user_id = user_id,
+            company_profile = profile_img_filename, 
             created_at = datetime.now()
         )
         db.add(new_company)

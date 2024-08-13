@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session
 from app.auth.jwt_bearer import JWTBearer
@@ -18,7 +18,7 @@ from app.schemas.company_update_schema import CompanyUpdateSchema
 router = APIRouter(tags = ["Company"])
 
 # # Register a new company
-# @router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+# @router.post("/company/register", summary="Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 # def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
 #     email = decode_jwt_token(token)
     
@@ -29,83 +29,81 @@ router = APIRouter(tags = ["Company"])
 #     if not user:
 #         return None
 
-#     new_company = company_service.create_company(company=company, user_id=user.id, db=db)
+#     # if the user has role_id 1 (superadmin) to allow register a company
+#     if user.role_id != 1:
+#         return ResponseSchema(status = False, response = msg["create_not_authorized"], data=None)
+
+#     new_company = company_service.create_company(company = company, user_id = user.id, db = db)
 
 #     if new_company:
-#         return ResponseSchema(status=True,  response=msg["company_register"],  data=new_company.__dict__)
+#         return ResponseSchema(status = True, response = msg["company_register"], data = new_company.__dict__)
 #     else:
-#         return ResponseSchema(status=False,  response=msg["company_already_exists"],  data=None)
+#         return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
 
 
+@router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+async def register_company(
+    company_name: str = Form(...),
+    company_email: str = Form(...),
+    company_number: str = Form(...),
+    company_zipcode: Optional[str] = Form(None),
+    company_city: Optional[str] = Form(None),
+    company_state: Optional[str] = Form(None),
+    company_country: Optional[str] = Form(None),
+    company_profile: Optional[UploadFile] = File(None),  
+    db: Session = Depends(get_db),
+    token: str = Depends(JWTBearer())
+):
 
-# # Get all company list 
-# @router.get("/company/list", summary="List of company", response_model = ResponseSchema[List[CompanyResponseSchema]], dependencies = [Depends(JWTBearer())])
-# def list_companies(params: Params = Depends(), db: Session = Depends(get_db), sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
-#     all_company = company_service.get_all_company(db = db, params = params, sort_by = sort_by, sort_direction = sort_direction)
-#     if all_company:
-#         return ResponseSchema(status = True, response = msg["company_list_found"], data = all_company.items) 
-#     else:
-#         return ResponseSchema(status = False, response = msg["company_list_not_found"], data = None)
-    
-
-
-# # Get company information by id 
-# @router.get("/company/{company_id}", summary = "Get company information by id", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
-# def view_company(company_id: int, db: Session = Depends(get_db)):
-#     get_company = company_service.get_company_by_id(company_id = company_id, db = db)
-#     if get_company is not None:
-#         return ResponseSchema(status = True, response = msg["get_company_by_id"], data = get_company.__dict__)
-#     else:
-#         return ResponseSchema(status = False, response = msg["get_company_by_id_not_found"], data = None)
-    
-
-
-# # Delete compapny by id
-# @router.delete("/company/{company_id}", summary = "Delete company by id", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
-# def delete_company(company_id: int, db: Session = Depends(get_db)):
-#     delete_company = company_service.delete_company_by_id(company_id = company_id, db = db)
-    # if delete_company is not None:
-    #     return ResponseSchema(status = True, response = msg["delete_company_by_id"], data = delete_company.__dict__)
-    # else:
-    #     return ResponseSchema(status = False, response = msg["delete_company_by_id_not_found"], data = None)
-    
-    
-
-# # Update company by id
-# @router.put("/company/{company_id}", summary="Update company by id", response_model = ResponseSchema[CompanyResponseSchema], dependencies = [Depends(JWTBearer())])
-# def update_company(company_data: CompanyUpdateSchema, company_id: int, db: Session = Depends(get_db)):
-#     updated_company = company_service.update_company_by_id(update_data = company_data, company_id = company_id, db = db)
-#     if updated_company:
-#         return ResponseSchema(status = True, response = msg["update_company_by_id"], data = updated_company.__dict__)
-#     else:
-#         return ResponseSchema(status = False, response = msg["update_company_by_id_not_found"], data = None)
-
-
-
-
-# Register a new company
-@router.post("/company/register", summary="Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
-def register_company(company: CompanyRegisterSchema, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
-    
     if email is None:
-        return None
+        return ResponseSchema(status=False, response="Invalid token", data=None)
 
     user = db.query(UserModel).filter(UserModel.email == email).first()
     if not user:
-        return None
+        return ResponseSchema(status=False, response="User not found", data=None)
 
-    # if the user has role_id 1 (superadmin) to allow register a company
+    # Check if the user has the role_id 1 (superadmin) to allow company registration
     if user.role_id != 1:
-        return ResponseSchema(status = False, response = msg["create_not_authorized"], data=None)
+        return ResponseSchema(status=False, response=msg["create_not_authorized"], data=None)
 
-    new_company = company_service.create_company(company = company, user_id = user.id, db = db)
+    company_profile_path = None
+    if company_profile:
+        filename = company_profile.filename
+        company_profile_path = f"uploads/company/{filename}"
+        contents = await company_profile.read()
+
+        with open(company_profile_path, "wb") as f:
+            f.write(contents)
+
+    company_data = CompanyRegisterSchema(
+        company_name = company_name,
+        company_email = company_email,
+        company_number = company_number,
+        company_zipcode = company_zipcode,
+        company_city = company_city,
+        company_state = company_state,
+        company_country = company_country
+    )
+
+    new_company = company_service.create_company(company=company_data, user_id=user.id, profile_img_filename=company_profile_path, db=db)
 
     if new_company:
-        return ResponseSchema(status = True, response = msg["company_register"], data = new_company.__dict__)
+        new_company_result = {
+            "id": new_company.id,
+            "company_name": new_company.company_name,
+            "company_email": new_company.company_email,
+            "company_number": new_company.company_number,
+            "company_zipcode": new_company.company_zipcode,
+            "company_city": new_company.company_city,
+            "company_state": new_company.company_state,
+            "company_country": new_company.company_country,
+            "company_profile": new_company.company_profile,  
+            "company_creator": new_company.company_creator
+        }
+        return ResponseSchema(status=True, response=msg["company_register"], data=new_company_result)
     else:
-        return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
-
+        return ResponseSchema(status=False, response=msg["company_already_exists"], data=None)
 
 
 
