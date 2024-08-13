@@ -42,18 +42,7 @@ router = APIRouter(tags = ["Company"])
 
 
 @router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
-async def register_company(
-    company_name: str = Form(...),
-    company_email: str = Form(...),
-    company_number: str = Form(...),
-    company_zipcode: Optional[str] = Form(None),
-    company_city: Optional[str] = Form(None),
-    company_state: Optional[str] = Form(None),
-    company_country: Optional[str] = Form(None),
-    company_profile: Optional[UploadFile] = File(None),  
-    db: Session = Depends(get_db),
-    token: str = Depends(JWTBearer())
-):
+async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[UploadFile] = File(None),   db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
 
     email = decode_jwt_token(token)
     if email is None:
