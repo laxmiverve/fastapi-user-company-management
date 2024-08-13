@@ -14,7 +14,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from typing import Optional
 
 # New user register
-def create_user(user_data: UserRegisterSchema, background_tasks: BackgroundTasks, db: Session):
+def create_user(user_data: UserRegisterSchema, profile_img_filename: Optional[str], background_tasks: BackgroundTasks, db: Session):
     try:
         existing_user = db.query(UserModel).filter(UserModel.email == user_data.email).first()
 
@@ -29,6 +29,7 @@ def create_user(user_data: UserRegisterSchema, background_tasks: BackgroundTasks
             state = user_data.state,
             country = user_data.country,
             role_id = user_data.role_id,
+            profile_img = profile_img_filename, 
             created_at = datetime.now() 
         )
 

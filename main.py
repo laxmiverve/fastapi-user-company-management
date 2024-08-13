@@ -1,3 +1,4 @@
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from fastapi import FastAPI
 from config.database import engine, Base
@@ -11,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 add_pagination(app)
 
 

@@ -13,6 +13,7 @@ class CompanyModel(Base):
     company_city = Column(String(50), nullable = True)
     company_state = Column(String(50), nullable = True)
     company_country = Column(String(50), nullable = False)
+    company_profile = Column(String(100), nullable = True)
 
     created_at = Column(TIMESTAMP, nullable = False, server_default = text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
