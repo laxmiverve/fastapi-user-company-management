@@ -15,19 +15,6 @@ router = APIRouter(prefix="/user", tags=["User"])
 
 
 # New user register
-# @router.post('/register', summary="Register new users", response_model = ResponseSchema[UserResponseSchema])
-# def register_user(user_data: UserRegisterSchema, db: Session = Depends(get_db)):
-
-#     role = db.query(Role).filter(Role.id == user_data.role_id).first()
-#     if not role:
-#         return ResponseSchema(status = False, response = msg["invalid_role_id"], data=None)
-    
-#     new_user = user_service.create_user(user_data = user_data, db = db)
-#     if new_user is not None:
-#         return ResponseSchema(status = True, response = msg['user_register'], data = new_user.__dict__)
-#     else:
-#         return ResponseSchema(status = False, response = msg['user_already_exists'], data = None)
-
 @router.post('/register', summary="Register new users", response_model=ResponseSchema[UserResponseSchema])
 def register_user(user_data: UserRegisterSchema, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
 

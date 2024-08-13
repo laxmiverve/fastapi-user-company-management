@@ -13,6 +13,7 @@ class UserModel(Base):
     city = Column(String(50), nullable = True)
     state = Column(String(50), nullable = True)
     country = Column(String(50), nullable = True)
+    profile_img = Column(String(100), nullable = True)
 
     created_at = Column(TIMESTAMP, nullable = False, server_default = text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
