@@ -1,4 +1,5 @@
 from typing import Optional
+from fastapi import UploadFile
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session, load_only, joinedload
@@ -12,30 +13,50 @@ from datetime import datetime
 
 
 # create a new company
-def create_company(company: CompanyRegisterSchema, profile_img_filename: Optional[str], user_id: int, db: Session):
+async def create_company(company_name: str, company_email: str, company_number: str, company_zipcode: Optional[str], company_city: Optional[str], company_state: Optional[str], company_country: Optional[str], company_profile: Optional[UploadFile], user_id: int, db: Session):
     try:
-        existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company.company_email).first()
+        existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company_email).first()
 
         if existing_company:
             return None
 
+        company_profile_path = None
+        if company_profile:
+            filename = company_profile.filename
+            company_profile_path = f"uploads/company/{filename}"
+            contents = await company_profile.read()
+
+            with open(company_profile_path, "wb") as f:
+                f.write(contents)
+
         new_company = CompanyModel(
-            company_name = company.company_name,
-            company_email = company.company_email,
-            company_number = company.company_number,
-            company_zipcode = company.company_zipcode,
-            company_city = company.company_city,
-            company_state = company.company_state,
-            company_country = company.company_country,
-            user_id = user_id,
-            company_profile = profile_img_filename, 
-            created_at = datetime.now()
+            company_name=company_name,
+            company_email=company_email,
+            company_number=company_number,
+            company_zipcode=company_zipcode,
+            company_city=company_city,
+            company_state=company_state,
+            company_country=company_country,
+            user_id=user_id,
+            company_profile=company_profile_path,
+            created_at=datetime.now()
         )
         db.add(new_company)
         db.commit()
         db.refresh(new_company)
 
-        return new_company
+        return {
+            "id": new_company.id,
+            "company_name": new_company.company_name,
+            "company_email": new_company.company_email,
+            "company_number": new_company.company_number,
+            "company_zipcode": new_company.company_zipcode,
+            "company_city": new_company.company_city,
+            "company_state": new_company.company_state,
+            "company_country": new_company.company_country,
+            "company_profile": new_company.company_profile,
+            "company_creator": new_company.company_creator
+        }
     except Exception as e:
         print("Exception occurred", str(e))
 

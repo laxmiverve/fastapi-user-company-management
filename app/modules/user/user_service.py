@@ -1,8 +1,9 @@
 from datetime import datetime
-from fastapi import BackgroundTasks, HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session, load_only, joinedload
 from sqlalchemy import or_
 from fastapi_pagination import Params
+from app.models.roles_model import Role
 from app.models.user_model import UserModel
 from app.models.company_model import CompanyModel
 from app.schemas.user_register_schema import UserRegisterSchema
@@ -14,38 +15,54 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from typing import Optional
 
 # New user register
-def create_user(user_data: UserRegisterSchema, profile_img_filename: Optional[str], background_tasks: BackgroundTasks, db: Session):
+async def create_user(name: str, email: str, password: str, role_id: int, city: str, state: str, country: str, profile_img: Optional[UploadFile], background_tasks: BackgroundTasks, db: Session):
     try:
-        existing_user = db.query(UserModel).filter(UserModel.email == user_data.email).first()
+        role = db.query(Role).filter(Role.id == role_id).first()
+        if not role:
+            return None
 
+        profile_img_path = None
+        if profile_img:
+            filename = profile_img.filename
+            profile_img_path = f"uploads/user/{filename}"
+            contents = await profile_img.read()
+
+            with open(profile_img_path, "wb") as f:
+                f.write(contents)
+
+        existing_user = db.query(UserModel).filter(UserModel.email == email).first()
         if existing_user:
             return None
 
         new_user = UserModel(
-            name = user_data.name,
-            email = user_data.email,
-            password = Hash.bcrypt(user_data.password),
-            city = user_data.city,
-            state = user_data.state,
-            country = user_data.country,
-            role_id = user_data.role_id,
-            profile_img = profile_img_filename, 
-            created_at = datetime.now() 
+            name=name,
+            email=email,
+            password=password,
+            role_id=role_id,
+            city=city,
+            state=state,
+            country=country,
+            profile_img=profile_img_path,
+            created_at=datetime.now()
         )
-
-        def send_email_task():
-            Helper.regd_mail_send(user_data.email)
-
-        background_tasks.add_task(send_email_task)
-
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
-        return new_user
-    
+        return {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email,
+            "city": new_user.city,
+            "state": new_user.state,
+            "country": new_user.country,
+            "role_name": role.role_name,
+            "profile_img": new_user.profile_img,
+            "companies": []  
+        }
     except Exception as e:
-        print("Exception occurred:", str(e))
+        print("Exception occurred", str(e))
+        return None
 
 
 

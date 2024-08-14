@@ -41,58 +41,28 @@ router = APIRouter(tags = ["Company"])
 #         return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
 
 
+# Register a new company
 @router.post("/company/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
-async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[UploadFile] = File(None),   db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
+async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[UploadFile] = File(None), db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
 
     email = decode_jwt_token(token)
     if email is None:
-        return ResponseSchema(status=False, response="Invalid token", data=None)
+        return None
 
     user = db.query(UserModel).filter(UserModel.email == email).first()
     if not user:
-        return ResponseSchema(status=False, response="User not found", data=None)
+        return None
 
-    # Check if the user has the role_id 1 (superadmin) to allow company registration
     if user.role_id != 1:
         return ResponseSchema(status=False, response=msg["create_not_authorized"], data=None)
 
-    company_profile_path = None
-    if company_profile:
-        filename = company_profile.filename
-        company_profile_path = f"uploads/company/{filename}"
-        contents = await company_profile.read()
-
-        with open(company_profile_path, "wb") as f:
-            f.write(contents)
-
-    company_data = CompanyRegisterSchema(
-        company_name = company_name,
-        company_email = company_email,
-        company_number = company_number,
-        company_zipcode = company_zipcode,
-        company_city = company_city,
-        company_state = company_state,
-        company_country = company_country
-    )
-
-    new_company = company_service.create_company(company=company_data, user_id=user.id, profile_img_filename=company_profile_path, db=db)
+    new_company = await company_service.create_company(company_name=company_name, company_email=company_email, company_number=company_number, company_zipcode=company_zipcode, company_city=company_city, company_state=company_state, company_country=company_country, company_profile=company_profile, user_id=user.id, db=db)
 
     if new_company:
-        new_company_result = {
-            "id": new_company.id,
-            "company_name": new_company.company_name,
-            "company_email": new_company.company_email,
-            "company_number": new_company.company_number,
-            "company_zipcode": new_company.company_zipcode,
-            "company_city": new_company.company_city,
-            "company_state": new_company.company_state,
-            "company_country": new_company.company_country,
-            "company_profile": new_company.company_profile,  
-            "company_creator": new_company.company_creator
-        }
-        return ResponseSchema(status=True, response=msg["company_register"], data=new_company_result)
+        return ResponseSchema(status=True, response=msg["company_register"], data=new_company)
     else:
         return ResponseSchema(status=False, response=msg["company_already_exists"], data=None)
+
 
 
 
