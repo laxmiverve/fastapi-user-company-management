@@ -7,13 +7,20 @@ from app.models.roles_model import Role
 from app.models.user_model import UserModel
 from app.models.company_model import CompanyModel
 from app.schemas.user_register_schema import UserRegisterSchema
+from app.schemas.user_response_schema import UserCompanyResponseSchema, UserResponseSchema
 from app.schemas.user_update_schema import UserUpdateSchema
 from app.hashing.password_hash import Hash
 from app.helper.email_sender import Helper
 from app.auth.jwt_handler import decode_jwt_token
 from fastapi_pagination.ext.sqlalchemy import paginate
 from typing import Optional
+import os
+from dotenv import load_dotenv
 
+
+load_dotenv()
+
+BASE_URL = os.getenv("BASE_URL")
 # New user register
 async def create_user(name: str, email: str, password: str, role_id: int, city: str, state: str, country: str, profile_img: Optional[UploadFile], background_tasks: BackgroundTasks, db: Session):
     try:
@@ -24,7 +31,7 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
         profile_img_path = None
         if profile_img:
             filename = profile_img.filename
-            profile_img_path = f"uploads/user/{filename}"
+            profile_img_path = f"uploads/user/{datetime.now()}_{filename}"
             contents = await profile_img.read()
 
             with open(profile_img_path, "wb") as f:
@@ -37,7 +44,7 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
         new_user = UserModel(
             name=name,
             email=email,
-            password=password,
+            password=Hash.bcrypt(password),
             role_id=role_id,
             city=city,
             state=state,
@@ -49,6 +56,9 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
         db.commit()
         db.refresh(new_user)
 
+        user_profile_url = f"{BASE_URL}{profile_img_path}" if profile_img_path else None
+
+
         return {
             "id": new_user.id,
             "name": new_user.name,
@@ -57,7 +67,7 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
             "state": new_user.state,
             "country": new_user.country,
             "role_name": role.role_name,
-            "profile_img": new_user.profile_img,
+            "profile_img": user_profile_url,
             "companies": []  
         }
     except Exception as e:
@@ -83,11 +93,17 @@ def get_all_users(db: Session, params: Params, search_string: str, sort_by: Opti
                 UserModel.email.like('%' + search_string + '%')
             ))
 
-        paginated_users = paginate(all_user, params = params)
+        paginated_users = paginate(all_user, params=params)
+        
+        for user in paginated_users.items:
+            if user.profile_img:
+                user.profile_img = f"{BASE_URL}{user.profile_img}"
+        
         return paginated_users
-    
+
     except Exception as e:
         print("Exception occurred:", str(e))
+        return None
 
 
 
@@ -95,15 +111,20 @@ def get_all_users(db: Session, params: Params, search_string: str, sort_by: Opti
 # Get user information by id
 def show_user(id: int, db: Session):
     try:
-        user = db.query(UserModel).options(load_only(UserModel.id, UserModel.name, UserModel.email, UserModel.city, UserModel.state, UserModel.country)).filter(UserModel.id == id).first()
+        user = db.query(UserModel).options(
+            load_only(UserModel.id, UserModel.name, UserModel.email, UserModel.city, UserModel.state, UserModel.country, UserModel.profile_img)
+        ).filter(UserModel.id == id).first()
 
         if not user:
             return None
 
+        if user.profile_img:
+            user.profile_img = f"{BASE_URL}{user.profile_img}"
+        
         return user
-    
     except Exception as e:
         print("Exception occurred:", str(e))
+
 
 
 
@@ -136,7 +157,16 @@ def update_user_info(user_update_data: UserUpdateSchema, token: str, db: Session
 
         user.updated_at = datetime.now() 
         db.commit()
-
+        return UserResponseSchema(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            city=user.city,
+            state=user.state,
+            country=user.country,
+            companies=[],  # Update this with actual company data if needed
+            profile_img=user.profile_img
+        )
         return user
     
     except Exception as e:
@@ -151,6 +181,9 @@ def delete_user_info(id: int, db: Session):
 
         if user is None:
             return None
+        
+        if user.profile_img:
+            user.profile_img = f"{BASE_URL}{user.profile_img}"
 
         db.delete(user)
         db.commit()

@@ -10,7 +10,14 @@ from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_response_schema import CompanyWithUsersSchema, UserDetailSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
+
+
+load_dotenv()
+
+BASE_URL = os.getenv("BASE_URL")
 
 # create a new company
 async def create_company(company_name: str, company_email: str, company_number: str, company_zipcode: Optional[str], company_city: Optional[str], company_state: Optional[str], company_country: Optional[str], company_profile: Optional[UploadFile], user_id: int, db: Session):
@@ -45,6 +52,9 @@ async def create_company(company_name: str, company_email: str, company_number: 
         db.commit()
         db.refresh(new_company)
 
+        # create the image url
+        company_profile_url = f"{BASE_URL}{company_profile_path}" if company_profile_path else None
+
         return {
             "id": new_company.id,
             "company_name": new_company.company_name,
@@ -54,7 +64,7 @@ async def create_company(company_name: str, company_email: str, company_number: 
             "company_city": new_company.company_city,
             "company_state": new_company.company_state,
             "company_country": new_company.company_country,
-            "company_profile": new_company.company_profile,
+            "company_profile": company_profile_url,
             "company_creator": new_company.company_creator
         }
     except Exception as e:

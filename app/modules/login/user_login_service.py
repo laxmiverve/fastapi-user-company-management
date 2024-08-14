@@ -5,6 +5,7 @@ from app.models.company_model import CompanyModel
 from app.models.roles_model import Role
 from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
+from app.modules.company.company_service import BASE_URL
 from app.schemas.user_response_schema import CompanyDetailSchema
 
 # user login
@@ -52,7 +53,8 @@ def userinfo_by_token(token: str, db: Session):
             return None
 
         user_company = db.query(UserCompany).filter(UserCompany.user_id == user.id).first()
-        # company_details = None
+        
+        company_details = None
 
         if user_company:
             company = db.query(CompanyModel).filter(CompanyModel.id == user_company.company_id).first()
@@ -63,19 +65,20 @@ def userinfo_by_token(token: str, db: Session):
                     company_email = company.company_email
                 )
 
+        profile_img_url = f"{BASE_URL}{user.profile_img}" if user.profile_img else None
+        
         return {
             "user_id": user.id,
             "name": user.name,
             "email": user.email,
             "role_id": user.role_id,
+            "role_name": role.role_name,
             "city": user.city,
             "state": user.state,
             "country": user.country,
-            "role_name": role.role_name,
+            "profile_img": profile_img_url,  
             "company_details": company_details
         }
     
     except Exception as e:
         print("An exception occurred:", str(e))
-        return None
-    

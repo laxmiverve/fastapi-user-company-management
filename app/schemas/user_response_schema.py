@@ -20,6 +20,7 @@ class UserResponseSchema(BaseModel):
     country: str
     # role_name: str
     companies: List[UserCompanyResponseSchema] 
+    profile_img: Optional[str]
 
     class Config:
         from_attributes = True  
@@ -45,6 +46,7 @@ class UserInformationSchema(BaseModel):
     country: str
     role_id: int
     role_name: str  
+    profile_img: Optional[str]
     # company: CompanyDetailSchema 
     company_details: Optional[CompanyDetailSchema] 
 

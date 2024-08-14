@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 class CompanyCreatorSchema(BaseModel):
@@ -19,6 +19,7 @@ class CompanyResponseSchema(BaseModel):
     company_city: str
     company_state: str
     company_country: str
+    company_profile: Optional[str]
     company_creator: CompanyCreatorSchema
 
     class Config:

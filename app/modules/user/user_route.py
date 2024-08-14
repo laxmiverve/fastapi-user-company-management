@@ -73,7 +73,7 @@ def list_users( params: Params = Depends(), db: Session = Depends(get_db), searc
 def get_user(id: int, db: Session = Depends(get_db)):
     user = user_service.show_user(id = id, db = db)
     if user is not None:
-        return ResponseSchema(status = True, response = msg['get_user_by_id'], data = user.__dict__)
+        return ResponseSchema(status = True, response = msg['get_user_by_id'], data = user)
     else:
         return ResponseSchema(status = False, response = msg['get_user_by_id_not_found'], data = None)
 
