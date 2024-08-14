@@ -36,13 +36,7 @@ def otp_verification(request: VerifyForgotPasswordOTPSchema, db: Session = Depen
 # change user password
 @router.post("/change_password", summary="Change user password", response_model = ResponseSchema[ChangePasswordResponseSchema])
 def change_user_password(request: ChangePasswordSchema, db: Session = Depends(get_db)):
-    password_change = forget_password_service.change_password(
-        email = request.email,
-        otp = request.otp,
-        new_password = request.new_password,
-        confirm_password = request.confirm_password,
-        db = db
-    )
+    password_change = forget_password_service.change_password(email = request.email, otp = request.otp, new_password = request.new_password, confirm_password = request.confirm_password, db = db)
 
     if password_change is not None:
         message = password_change.get("message")

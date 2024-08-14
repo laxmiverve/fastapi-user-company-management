@@ -73,7 +73,6 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
         }
     except Exception as e:
         print("Exception occurred", str(e))
-        return None
 
 
 
@@ -168,7 +167,7 @@ def update_user_info(user_update_data: UserUpdateSchema, token: str, db: Session
             companies = [], 
             profile_img = user.profile_img
         )
-        return user
+        # return user
     
     except Exception as e:
         print("Exception occurred:", str(e))
