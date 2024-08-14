@@ -19,8 +19,9 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-
 BASE_URL = os.getenv("BASE_URL")
+
+
 # New user register
 async def create_user(name: str, email: str, password: str, role_id: int, city: str, state: str, country: str, profile_img: Optional[UploadFile], background_tasks: BackgroundTasks, db: Session):
     try:
@@ -158,14 +159,14 @@ def update_user_info(user_update_data: UserUpdateSchema, token: str, db: Session
         user.updated_at = datetime.now() 
         db.commit()
         return UserResponseSchema(
-            id=user.id,
-            name=user.name,
-            email=user.email,
-            city=user.city,
-            state=user.state,
-            country=user.country,
-            companies=[],  # Update this with actual company data if needed
-            profile_img=user.profile_img
+            id = user.id,
+            name = user.name,
+            email = user.email,
+            city = user.city,
+            state = user.state,
+            country = user.country,
+            companies = [], 
+            profile_img = user.profile_img
         )
         return user
     
