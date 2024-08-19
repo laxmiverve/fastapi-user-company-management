@@ -16,10 +16,10 @@ from app.schemas.company_update_schema import CompanyUpdateSchema
 
 router = APIRouter(prefix="/company", tags = ["Company"])
 
+
 # Register a new company
 @router.post("/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
-async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[UploadFile] = File(None), db: Session = Depends(get_db), token: str = Depends(JWTBearer())
-):
+async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[UploadFile] = File(None), db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
 
     email = decode_jwt_token(token)
     if email is None:
@@ -29,7 +29,7 @@ async def register_company(company_name: str = Form(...), company_email: str = F
     if not user or user.role_id != 1:
         return ResponseSchema(status=False, response=msg["create_not_authorized"], data=None)
 
-    new_company = await company_service.create_company(company_name=company_name, company_email=company_email, company_number=company_number, company_zipcode=company_zipcode, company_city=company_city, company_state=company_state, company_country=company_country, company_profile=company_profile, user_id=user.id, db=db, token = token)
+    new_company = await company_service.create_company(company_name=company_name, company_email=company_email, company_number=company_number, company_zipcode=company_zipcode, company_city=company_city, company_state=company_state, company_country=company_country, company_profile=company_profile, user_id=user.id, db=db)
 
 
     if new_company:
