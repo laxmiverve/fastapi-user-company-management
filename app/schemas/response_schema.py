@@ -1,16 +1,3 @@
-# from pydantic import BaseModel
-# from typing import Union, Optional
-
-
-# class ResponseSchema(BaseModel):
-#     status: bool = True
-#     response: Optional[str]= None
-#     data: Union[Optional[dict], Optional[list], None] = None
-
-#     class Config():
-#         from_attributes=True
-
-
 from pydantic import BaseModel
 from typing import TypeVar, Generic, Optional
 

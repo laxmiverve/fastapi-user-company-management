@@ -1,6 +1,5 @@
 from pydantic_settings import BaseSettings
 
-
 class EmailSettings(BaseSettings):
     email_host: str
     email_port: int

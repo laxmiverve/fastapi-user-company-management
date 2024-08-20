@@ -6,11 +6,9 @@ from fastapi_pagination import Params
 from app.models.roles_model import Role
 from app.models.user_model import UserModel
 from app.models.company_model import CompanyModel
-from app.schemas.user_register_schema import UserRegisterSchema
-from app.schemas.user_response_schema import UserCompanyResponseSchema, UserResponseSchema
+from app.schemas.user_response_schema import UserResponseSchema
 from app.schemas.user_update_schema import UserUpdateSchema
 from app.hashing.password_hash import Hash
-from app.helper.email_sender import Helper
 from app.auth.jwt_handler import decode_jwt_token
 from fastapi_pagination.ext.sqlalchemy import paginate
 from typing import Optional

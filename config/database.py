@@ -20,7 +20,7 @@ MYSQL_URL = f"mysql+pymysql://{user}:{password}@{host}/{database}"
 engine = create_engine(MYSQL_URL)
 SessionLocal = sessionmaker(autocommit = False, autoflush = False, bind = engine)
 
-file = open(os.getcwd() + '/respone_message.json')
+file = open(os.getcwd() + '/response_message.json')
 msg = json.load(file)
 
 def get_db():

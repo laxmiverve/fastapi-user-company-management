@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session, load_only, joinedload
 from app.models.company_model import CompanyModel
 from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
-from app.schemas.company_register_schema import CompanyRegisterSchema
-from app.schemas.company_response_schema import CompanyDetailsSchema, CompanyResponseSchema, CompanyWithUsersSchema, UserDetailSchema
+from app.schemas.company_response_schema import *
 from app.schemas.company_update_schema import CompanyUpdateSchema
 from datetime import datetime
 import os

@@ -26,7 +26,6 @@ class CompanyResponseSchema(BaseModel):
         from_attributes = True  
 
 
-
 class UserDetailSchema(BaseModel):
     user_id: int
     user_name: str
@@ -54,4 +53,3 @@ class CompanyDetailsSchema(BaseModel):
     created_at: Optional[str]
     updated_at: Optional[str]  
     created_by_user: Optional[UserDetailSchema] = None
-    # updated_by_user: Optional[UserDetailSchema] = None

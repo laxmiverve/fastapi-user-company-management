@@ -2,8 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
 from app.modules.forgot_password import forget_password_service
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.user_forget_password_schema import *
-from app.schemas.forget_password_response_schema import *
+from app.schemas.forget_password_schema import *
 from config.database import get_db, msg
 
 router = APIRouter(tags=["Forgot Password"])
