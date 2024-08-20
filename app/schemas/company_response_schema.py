@@ -46,3 +46,12 @@ class CompanyWithUsersSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CompanyDetailsSchema(BaseModel):
+    company_id: int
+    company_name: str
+    created_at: Optional[str]
+    updated_at: Optional[str]  
+    created_by_user: Optional[UserDetailSchema] = None
+    # updated_by_user: Optional[UserDetailSchema] = None

@@ -7,7 +7,7 @@ from app.models.company_model import CompanyModel
 from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
 from app.schemas.company_register_schema import CompanyRegisterSchema
-from app.schemas.company_response_schema import CompanyResponseSchema, CompanyWithUsersSchema, UserDetailSchema
+from app.schemas.company_response_schema import CompanyDetailsSchema, CompanyResponseSchema, CompanyWithUsersSchema, UserDetailSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 from datetime import datetime
 import os
@@ -231,3 +231,31 @@ def get_company_users(company_id: int, db: Session):
         return company_with_users
     except Exception as e:
         print("Exception occurred:", str(e))
+
+
+
+
+# get company details by id 
+def get_company_details_by_id(company_id: int, db: Session) -> Optional[CompanyDetailsSchema]:
+    company = db.query(CompanyModel).options(joinedload(CompanyModel.company_creator)).filter(CompanyModel.id == company_id).first()
+    
+    if not company:
+        return None
+    
+    created_by_user = company.company_creator
+
+    def format_datetime(dt: datetime) -> str:
+        return dt.strftime('%Y-%m-%d %H:%M:%S') if dt else None
+    
+    return CompanyDetailsSchema(
+        company_id=company.id,
+        company_name=company.company_name,
+        description=company.company_profile,
+        created_at=format_datetime(company.created_at),
+        updated_at=format_datetime(company.updated_at),
+        created_by_user={
+            "user_id": created_by_user.id,
+            "user_name": created_by_user.name,
+            "user_email": created_by_user.email
+        } 
+    )

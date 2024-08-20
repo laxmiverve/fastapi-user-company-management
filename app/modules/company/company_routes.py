@@ -11,7 +11,7 @@ from app.schemas.user_company_schema import UserCompanySchema
 from config.database import get_db, msg
 from typing import List, Optional
 from app.schemas.response_schema import ResponseSchema
-from app.schemas.company_response_schema import CompanyResponseSchema, CompanyWithUsersSchema
+from app.schemas.company_response_schema import CompanyDetailsSchema, CompanyResponseSchema, CompanyWithUsersSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
 
 router = APIRouter(prefix="/company", tags = ["Company"])
@@ -215,3 +215,16 @@ def get_company_with_users_route(company_id: int, db: Session = Depends(get_db),
         return ResponseSchema(status = True, response = msg["users_found"], data = company_with_users)
     else:
         return ResponseSchema(status = False, response = msg["company_not_found"], data = None)
+
+
+# @router.get("/companyinfo/{company_id}", response_model=ResponseSchema[CompanyDetailsSchema])
+@router.get("/companyinfo/{company_id}", response_model=ResponseSchema)
+
+def get_company_details(company_id: int, db: Session = Depends(get_db)):
+    company_details = company_service.get_company_details_by_id(company_id=company_id, db=db)
+    
+    if company_details is None:
+        return ResponseSchema(status = False, response = msg["company_not_found"], data = None)
+    else:
+        return ResponseSchema(status = True, response = msg["company_details_fetched"], data = company_details)
+    

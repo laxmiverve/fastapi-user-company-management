@@ -51,5 +51,7 @@
     "user_already_in_company" : "User already exist in the company",
     "user_in_another_company" : "User already exist in another company",
     "users_found" : "User found successfully in this company",
-    "no_users_found" : "No user is found in this company"
+    "no_users_found" : "No user is found in this company",
+
+    "company_details_fetched": "Successfully get company information"
 }
