@@ -2,45 +2,16 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile, Form
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from fastapi_pagination import Params
-from app.models.roles_model import Role
 from app.modules.user import user_service
 from config.database import get_db, msg
 from app.schemas.response_schema import ResponseSchema
 from app.auth.jwt_bearer import JWTBearer
-from app.schemas.user_register_schema import UserRegisterSchema
 from app.schemas.user_update_schema import UserUpdateSchema
 from app.schemas.user_response_schema import UserResponseSchema
 
-router = APIRouter(prefix="/user", tags=["User"])
+router = APIRouter(prefix="/user", tags=["User"])  
 
 
-# New user register
-# @router.post('/register', summary="Register new users", response_model=ResponseSchema[UserResponseSchema])
-# def register_user(user_data: UserRegisterSchema, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-
-#     role = db.query(Role).filter(Role.id == user_data.role_id).first()
-#     if not role:
-#         return ResponseSchema(status = False, response = msg["invalid_role_id"], data = None)
-    
-#     new_user = user_service.create_user(user_data = user_data, background_tasks = background_tasks, db = db)
-#     if new_user:
-#         new_user_result = {
-#             "id": new_user.id,
-#             "name": new_user.name,
-#             "email": new_user.email,
-#             "city": new_user.city,
-#             "state": new_user.state,
-#             "country": new_user.country,
-#             "role_name": role.role_name,
-#             "companies": []  
-#         }
-#         return ResponseSchema(status = True, response = msg['user_register'], data = new_user_result)
-#     else:
-#         return ResponseSchema(status = False, response = msg['user_already_exists'], data = None)
-
-        
-
-        
 # New user register
 @router.post('/register', summary="Register new users", response_model=ResponseSchema[UserResponseSchema])
 async def register_user(background_tasks: BackgroundTasks, name: str = Form(...), email: str = Form(...), password: str = Form(...), role_id: int = Form(...), city: str = Form(...), state: str = Form(...), country: str = Form(...), profile_img: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
@@ -51,8 +22,6 @@ async def register_user(background_tasks: BackgroundTasks, name: str = Form(...)
         return ResponseSchema(status=True, response=msg['user_register'], data=new_user)
     else:
         return ResponseSchema(status=False, response=msg['user_already_exists'], data=None)
-
-
 
 
 

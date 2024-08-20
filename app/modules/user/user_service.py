@@ -40,16 +40,16 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
         if existing_user:
             return None
 
-        new_user = UserModel(
-            name=name,
-            email=email,
-            password=Hash.bcrypt(password),
-            role_id=role_id,
-            city=city,
-            state=state,
-            country=country,
-            profile_img=profile_img_path,
-            created_at=datetime.now()
+        new_user = UserModel( 
+            name = name,
+            email = email,
+            password = Hash.bcrypt(password),
+            role_id = role_id,
+            city = city,
+            state = state,
+            country = country,
+            profile_img = profile_img_path,
+            created_at = datetime.now()
         )
         db.add(new_user)
         db.commit()
