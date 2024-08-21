@@ -38,15 +38,15 @@ async def create_company(company_name: str, company_email: str, company_number: 
                 file.write(contents)
 
         new_company = CompanyModel(
-            company_name=company_name,
-            company_email=company_email,
-            company_number=company_number,
-            company_zipcode=company_zipcode,
-            company_city=company_city,
-            company_state=company_state,
-            company_country=company_country,
-            company_profile=company_profile_path,
-            user_id=user_id
+            company_name = company_name,
+            company_email = company_email,
+            company_number = company_number,
+            company_zipcode = company_zipcode,
+            company_city = company_city,
+            company_state = company_state,
+            company_country = company_country,
+            company_profile = company_profile_path,
+            user_id = user_id
         )
         db.add(new_company)
         db.commit()
@@ -58,15 +58,15 @@ async def create_company(company_name: str, company_email: str, company_number: 
         # user = db.query(UserModel).get(user_id)
         return CompanyResponseSchema(
             id=new_company.id,
-            company_name=new_company.company_name,
-            company_email=new_company.company_email,
-            company_number=new_company.company_number,
-            company_zipcode=new_company.company_zipcode,
-            company_city=new_company.company_city,
-            company_state=new_company.company_state,
-            company_country=new_company.company_country,
-            company_profile=company_profile_url,
-            company_creator=new_company.company_creator
+            company_name = new_company.company_name,
+            company_email = new_company.company_email,
+            company_number = new_company.company_number,
+            company_zipcode = new_company.company_zipcode,
+            company_city = new_company.company_city,
+            company_state = new_company.company_state,
+            company_country = new_company.company_country,
+            company_profile = company_profile_url,
+            company_creator = new_company.company_creator
         )
     except Exception as e:
         print("An exception occurred:", str(e))

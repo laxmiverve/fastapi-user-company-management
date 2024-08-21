@@ -109,9 +109,7 @@ def get_all_users(db: Session, params: Params, search_string: str, sort_by: Opti
 # Get user information by id
 def show_user(id: int, db: Session):
     try:
-        user = db.query(UserModel).options(
-            load_only(UserModel.id, UserModel.name, UserModel.email, UserModel.city, UserModel.state, UserModel.country, UserModel.profile_img)
-        ).filter(UserModel.id == id).first()
+        user = db.query(UserModel).options(load_only(UserModel.id, UserModel.name, UserModel.email, UserModel.city, UserModel.state, UserModel.country, UserModel.profile_img)).filter(UserModel.id == id).first()
 
         if not user:
             return None
