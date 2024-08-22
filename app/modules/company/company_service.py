@@ -12,14 +12,12 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 import uuid
-from uuid import UUID
-
+import pathlib
 
 
 load_dotenv()
 
 BASE_URL = os.getenv("BASE_URL")
-
 
 # create a company
 async def create_company(company_name: str, company_email: str, company_number: str, company_zipcode: Optional[str], company_city: Optional[str], company_state: Optional[str], company_country: Optional[str], company_profile: Optional[UploadFile], user_id: int, db: Session):
@@ -29,16 +27,6 @@ async def create_company(company_name: str, company_email: str, company_number: 
         if existing_company:
             return None
 
-        company_profile_path = None
-        if company_profile:
-            filename = company_profile.filename
-
-            company_profile_path = f"uploads/company/{datetime.now()}_{filename}"
-            contents = await company_profile.read()
-
-            with open(company_profile_path, "wb") as file:
-                file.write(contents)
-
         new_company = CompanyModel(
             company_name = company_name,
             company_email = company_email,
@@ -47,7 +35,7 @@ async def create_company(company_name: str, company_email: str, company_number: 
             company_city = company_city,
             company_state = company_state,
             company_country = company_country,
-            company_profile = company_profile_path,
+            # company_profile = company_profile_path,
             user_id = user_id,
             uuid = str(uuid.uuid4())
         )
@@ -55,12 +43,25 @@ async def create_company(company_name: str, company_email: str, company_number: 
         db.commit()
         db.refresh(new_company)
 
+        company_profile_path = None
+        if company_profile:
+            filename = company_profile.filename
+            timestamp = int(datetime.now().timestamp())
+            file_extension = pathlib.Path(filename).suffix
+
+            company_profile_path = f"uploads/company/{new_company.id}_{timestamp}{file_extension}"
+            contents = await company_profile.read()
+
+            with open(company_profile_path, "wb") as file:
+                file.write(contents)
+
+            new_company.company_profile = company_profile_path
+            db.commit()
+
         company_profile_url = f"{BASE_URL}{company_profile_path}" if company_profile_path else None
 
-
-        # user = db.query(UserModel).get(user_id)
         return CompanyResponseSchema(
-            id=new_company.id,
+            id = new_company.id,
             company_name = new_company.company_name,
             company_email = new_company.company_email,
             company_number = new_company.company_number,
@@ -71,7 +72,6 @@ async def create_company(company_name: str, company_email: str, company_number: 
             company_profile = company_profile_url,
             company_creator = new_company.company_creator,
             uuid = new_company.uuid,
-
         )
     except Exception as e:
         print("An exception occurred:", str(e))

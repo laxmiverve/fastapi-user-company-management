@@ -1,4 +1,5 @@
 from datetime import datetime
+import pathlib
 from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session, load_only, joinedload
 from sqlalchemy import or_
@@ -26,16 +27,7 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
         role = db.query(Role).filter(Role.id == role_id).first()
         if not role:
             return None
-
-        profile_img_path = None
-        if profile_img:
-            filename = profile_img.filename
-            profile_img_path = f"uploads/user/{datetime.now()}_{filename}"
-            contents = await profile_img.read()
-
-            with open(profile_img_path, "wb") as f:
-                f.write(contents)
-
+        
         existing_user = db.query(UserModel).filter(UserModel.email == email).first()
         if existing_user:
             return None
@@ -48,15 +40,29 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
             city = city,
             state = state,
             country = country,
-            profile_img = profile_img_path,
+            # profile_img = profile_img_path,
             created_at = datetime.now()
         )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
-        user_profile_url = f"{BASE_URL}{profile_img_path}" if profile_img_path else None
+        profile_img_path = None
+        if profile_img:
+            filename = profile_img.filename
+            timestamp = int(datetime.now().timestamp())
+            file_extension = pathlib.Path(filename).suffix
 
+            profile_img_path = f"uploads/user/{new_user.id}_{timestamp}{file_extension}"
+            contents = await profile_img.read()
+
+            with open(profile_img_path, "wb") as f:
+                f.write(contents)
+            
+            new_user.profile_img = profile_img_path
+            db.commit()
+
+        user_profile_url = f"{BASE_URL}{profile_img_path}" if profile_img_path else None
 
         return {
             "id": new_user.id,
@@ -65,7 +71,6 @@ async def create_user(name: str, email: str, password: str, role_id: int, city: 
             "city": new_user.city,
             "state": new_user.state,
             "country": new_user.country,
-            "role_name": role.role_name,
             "profile_img": user_profile_url,
             "companies": []  
         }
