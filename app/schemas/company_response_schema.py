@@ -12,6 +12,8 @@ class CompanyCreatorSchema(BaseModel):
 
 class CompanyResponseSchema(BaseModel):
     id: int
+    # uuid: int
+    uuid: str
     company_name: str
     company_email: str
     company_number: str

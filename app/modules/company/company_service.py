@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import UploadFile
+from fastapi import Header, UploadFile
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session, load_only, joinedload
@@ -11,6 +11,8 @@ from app.schemas.company_update_schema import CompanyUpdateSchema
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import uuid
+from uuid import UUID
 
 
 
@@ -46,7 +48,8 @@ async def create_company(company_name: str, company_email: str, company_number: 
             company_state = company_state,
             company_country = company_country,
             company_profile = company_profile_path,
-            user_id = user_id
+            user_id = user_id,
+            uuid = str(uuid.uuid4())
         )
         db.add(new_company)
         db.commit()
@@ -66,7 +69,9 @@ async def create_company(company_name: str, company_email: str, company_number: 
             company_state = new_company.company_state,
             company_country = new_company.company_country,
             company_profile = company_profile_url,
-            company_creator = new_company.company_creator
+            company_creator = new_company.company_creator,
+            uuid = new_company.uuid,
+
         )
     except Exception as e:
         print("An exception occurred:", str(e))
@@ -180,7 +185,8 @@ def update_company_by_id(company_id: int, db: Session, company_data: CompanyUpda
             company_state = existing_company.company_state,
             company_country = existing_company.company_country,
             company_profile = existing_company.company_profile,
-            company_creator = existing_company.company_creator
+            company_creator = existing_company.company_creator,
+            uuid = existing_company.uuid
             )
 
         # return existing_company
@@ -234,27 +240,55 @@ def get_company_users(company_id: int, db: Session):
 
 
 
-# get company details by id 
-def get_company_details_by_id(company_id: int, db: Session) -> Optional[CompanyDetailsSchema]:
-    company = db.query(CompanyModel).options(joinedload(CompanyModel.company_creator)).filter(CompanyModel.id == company_id).first()
-    
-    if not company:
-        return None
-    
-    created_by_user = company.company_creator
+# get company information by using company id 
+def get_company_details_by_id(company_id: int, db: Session):
+    try:
+        company = db.query(CompanyModel).options(joinedload(CompanyModel.company_creator)).filter(CompanyModel.id == company_id).first()
+        
+        if not company:
+            return None
+        
+        created_by_user = company.company_creator
 
-    def format_datetime(dt: datetime) -> str:
-        return dt.strftime('%Y-%m-%d %H:%M:%S') if dt else None
+        def format_datetime(dt: datetime) -> str:
+            return dt.strftime('%Y-%m-%d %H:%M:%S') if dt else None
+        
+        return CompanyDetailsSchema(
+            company_id=company.id,
+            company_name=company.company_name,
+            description=company.company_profile,
+            created_at=format_datetime(company.created_at),
+            updated_at=format_datetime(company.updated_at),
+            created_by_user={
+                "user_id": created_by_user.id,
+                "user_name": created_by_user.name,
+                "user_email": created_by_user.email
+            } 
+        )
+    except Exception as e:
+        print("Exception occurred:", str(e))
+
+
+
     
-    return CompanyDetailsSchema(
-        company_id=company.id,
-        company_name=company.company_name,
-        description=company.company_profile,
-        created_at=format_datetime(company.created_at),
-        updated_at=format_datetime(company.updated_at),
-        created_by_user={
-            "user_id": created_by_user.id,
-            "user_name": created_by_user.name,
-            "user_email": created_by_user.email
-        } 
-    )
+# get company information by company uuid
+def get_company_by_uuid(db: Session, uuid: str = Header(None)):
+    try:
+        company = db.query(CompanyModel).filter(CompanyModel.uuid == uuid).one()
+        company_profile_url = f"{BASE_URL}{company.company_profile}" if company.company_profile else None
+
+        return CompanyResponseSchema(
+            id = company.id,
+            uuid = company.uuid,
+            company_name = company.company_name,
+            company_email = company.company_email,
+            company_number = company.company_number,
+            company_zipcode = company.company_zipcode,
+            company_city = company.company_city,
+            company_state = company.company_state,
+            company_country = company.company_country,
+            company_profile = company_profile_url,
+            company_creator = company.company_creator
+        )
+    except Exception as e:
+        print("An exception occurred:", str(e))

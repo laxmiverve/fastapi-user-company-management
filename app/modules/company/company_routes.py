@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Header, UploadFile
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session
 from app.auth.jwt_bearer import JWTBearer
@@ -13,6 +13,8 @@ from typing import List, Optional
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.company_response_schema import CompanyResponseSchema, CompanyWithUsersSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
+from app.helper.email_sender import Helper
+
 
 router = APIRouter(prefix="/company", tags = ["Company"])
 
@@ -217,9 +219,9 @@ def get_company_with_users_route(company_id: int, db: Session = Depends(get_db),
         return ResponseSchema(status = False, response = msg["company_not_found"], data = None)
 
 
-# @router.get("/companyinfo/{company_id}", response_model=ResponseSchema[CompanyDetailsSchema])
-@router.get("/companyinfo/{company_id}", response_model=ResponseSchema)
 
+# get company information by using company id 
+@router.get("/companyinfo/{company_id}", response_model=ResponseSchema)
 def get_company_details(company_id: int, db: Session = Depends(get_db)):
     company_details = company_service.get_company_details_by_id(company_id=company_id, db=db)
     
@@ -227,4 +229,15 @@ def get_company_details(company_id: int, db: Session = Depends(get_db)):
         return ResponseSchema(status = False, response = msg["company_not_found"], data = None)
     else:
         return ResponseSchema(status = True, response = msg["company_details_fetched"], data = company_details)
-    
+
+
+
+# get company details by using UUID (pass the uuid in header)
+@router.post("/info", summary="Get company details by UUID", response_model=ResponseSchema, dependencies=[Depends(JWTBearer())])
+def get_company_details(uuid: str = Header(None), db: Session = Depends(get_db)):
+    company = company_service.get_company_by_uuid(uuid=uuid, db=db)
+
+    if company:
+        return ResponseSchema(status = True, response = msg["company_details_fetched"], data = company)
+    else:
+        return ResponseSchema(status = False, response= msg["company_not_found"], data= None)
