@@ -1,4 +1,5 @@
 import base64
+import pathlib
 from typing import Optional
 from fastapi import Header
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -23,7 +24,67 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL")
 
 # create a company
-async def create_company( company_data: CompanyRegisterSchema, user_id: int, db: Session):
+# async def create_company( company_data: CompanyRegisterSchema, user_id: int, db: Session):
+#     try:
+#         existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company_data.company_email).first()
+
+#         if existing_company:
+#             return None
+
+#         new_company = CompanyModel(
+#             company_name=company_data.company_name,
+#             company_email=company_data.company_email,
+#             company_number=company_data.company_number,
+#             company_zipcode=company_data.company_zipcode,
+#             company_city=company_data.company_city,
+#             company_state=company_data.company_state,
+#             company_country=company_data.company_country,
+#             user_id=user_id,
+#             uuid=str(uuid.uuid4())
+#         )
+#         db.add(new_company)
+#         db.commit()
+#         db.refresh(new_company)
+
+#         company_profile_path = None
+#         if company_data.company_profile:
+#             if company_data.company_profile.startswith("data:"):
+#                 header, company_profile = company_data.company_profile.split(",", 1)
+#             file_data = base64.b64decode(company_profile)
+#             image = Image.open(BytesIO(file_data))
+#             file_extension = f".{image.format.lower()}"
+
+#             timestamp = int(datetime.now().timestamp())
+#             company_profile_path = f"uploads/company/{new_company.id}_{timestamp}{file_extension}"
+
+#             with open(company_profile_path, "wb") as file:
+#                 file.write(file_data)
+
+#             new_company.company_profile = company_profile_path
+#             db.commit()
+#             company_profile_url = f"{BASE_URL}{company_profile_path}"
+#         else:
+#             company_profile_url = None
+
+#         return CompanyResponseSchema(
+#             id=new_company.id,
+#             company_name=new_company.company_name,
+#             company_email=new_company.company_email,
+#             company_number=new_company.company_number,
+#             company_zipcode=new_company.company_zipcode,
+#             company_city=new_company.company_city,
+#             company_state=new_company.company_state,
+#             company_country=new_company.company_country,
+#             company_profile=company_profile_url,
+#             company_creator=new_company.company_creator,
+#             uuid=new_company.uuid,
+#         )
+#     except Exception as e:
+#         print("An exception occurred:", str(e))
+
+
+
+async def create_company(company_data: CompanyRegisterSchema, user_id: int, db: Session):
     try:
         existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company_data.company_email).first()
 
@@ -45,7 +106,7 @@ async def create_company( company_data: CompanyRegisterSchema, user_id: int, db:
         db.commit()
         db.refresh(new_company)
 
-        company_profile_path = None
+        company_images = []
         if company_data.company_profile:
             if company_data.company_profile.startswith("data:"):
                 header, company_profile = company_data.company_profile.split(",", 1)
@@ -59,25 +120,34 @@ async def create_company( company_data: CompanyRegisterSchema, user_id: int, db:
             with open(company_profile_path, "wb") as file:
                 file.write(file_data)
 
+            company_images.append(company_profile_path)
             new_company.company_profile = company_profile_path
-            db.commit()
-            company_profile_url = f"{BASE_URL}{company_profile_path}"
-        else:
-            company_profile_url = None
 
-        return CompanyResponseSchema(
-            id=new_company.id,
-            company_name=new_company.company_name,
-            company_email=new_company.company_email,
-            company_number=new_company.company_number,
-            company_zipcode=new_company.company_zipcode,
-            company_city=new_company.company_city,
-            company_state=new_company.company_state,
-            company_country=new_company.company_country,
-            company_profile=company_profile_url,
-            company_creator=new_company.company_creator,
-            uuid=new_company.uuid,
-        )
+        # Save the list of images, including the first one
+        if company_images:
+            new_company.company_images = ",".join(company_images)
+        
+        db.commit()
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++",company_images )
+
+        company_profile_url = f"{BASE_URL}{new_company.company_profile}" if new_company.company_profile else None
+        company_images_urls = [f"{BASE_URL}{img}" for img in company_images]
+        print("+++++++++++++++++++++++++++++++company_images_urls++++++++++++++++++++++++", company_images_urls)
+
+        return {
+            "id": new_company.id,
+            "company_name": new_company.company_name,
+            "company_email": new_company.company_email,
+            "company_number": new_company.company_number,
+            "company_zipcode": new_company.company_zipcode,
+            "company_city": new_company.company_city,
+            "company_state": new_company.company_state,
+            "company_country": new_company.company_country,
+            "company_profile": company_profile_url,
+            "company_images": company_images_urls,
+            "company_creator": new_company.company_creator,
+            "uuid": new_company.uuid,
+        }
     except Exception as e:
         print("An exception occurred:", str(e))
 

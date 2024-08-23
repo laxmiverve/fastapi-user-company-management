@@ -9,7 +9,7 @@ class CompanyRegisterSchema(BaseModel):
     company_city: Optional[str] = None
     company_state: Optional[str] = None
     company_country: Optional[str] = None
-    company_profile: Optional[str] = None 
+    company_profile: Optional[str] = None
 
     class Config():
         from_attributes = True
