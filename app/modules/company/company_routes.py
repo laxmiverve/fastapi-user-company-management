@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Header, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Header, UploadFile
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session
 from app.auth.jwt_bearer import JWTBearer
@@ -13,31 +13,26 @@ from typing import List, Optional
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.company_response_schema import CompanyResponseSchema, CompanyWithUsersSchema
 from app.schemas.company_update_schema import CompanyUpdateSchema
-from app.helper.email_sender import Helper
 
 
 router = APIRouter(prefix="/company", tags = ["Company"])
 
 
 # Register a new company
-@router.post("/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
-async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[UploadFile] = File(None), db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
-
+@router.post("/register", summary="Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[str] = Form(None), db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
     if email is None:
-        return ResponseSchema(status=False, response=msg['wrong_token'], data=None)
-
+        return ResponseSchema(status = False, response = msg['wrong_token'], data = None)
     user = db.query(UserModel).filter(UserModel.email == email).first()
-    if not user or user.role_id != 1:
-        return ResponseSchema(status=False, response=msg["create_not_authorized"], data=None)
 
-    new_company = await company_service.create_company(company_name=company_name, company_email=company_email, company_number=company_number, company_zipcode=company_zipcode, company_city=company_city, company_state=company_state, company_country=company_country, company_profile=company_profile, user_id=user.id, db=db)
-
+    new_company = await company_service.create_company(company_name = company_name, company_email = company_email, company_number = company_number, company_zipcode = company_zipcode, company_city = company_city, company_state = company_state, company_country = company_country, company_profile = company_profile,  user_id = user.id, db = db)
 
     if new_company:
-        return ResponseSchema(status=True, response=msg["company_register"], data=new_company)
+        return ResponseSchema(status = True, response = msg["company_register"], data = new_company)
     else:
-        return ResponseSchema(status=False, response=msg["company_already_exists"], data=None)
+        return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
+
     
 
 
