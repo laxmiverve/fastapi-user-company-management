@@ -7,6 +7,7 @@ from app.models.company_model import CompanyModel
 from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
 from app.modules.company import company_service
+from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.user_company_schema import UserCompanySchema
 from config.database import get_db, msg
 from typing import List, Optional
@@ -19,19 +20,21 @@ router = APIRouter(prefix="/company", tags = ["Company"])
 
 
 # Register a new company
-@router.post("/register", summary="Register a new company", response_model = ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
-async def register_company(company_name: str = Form(...), company_email: str = Form(...), company_number: str = Form(...), company_zipcode: Optional[str] = Form(None), company_city: Optional[str] = Form(None), company_state: Optional[str] = Form(None), company_country: Optional[str] = Form(None), company_profile: Optional[str] = Form(None), db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
+@router.post("/register", summary="Register a new company", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+async def register_company( company_data: CompanyRegisterSchema, db: Session = Depends(get_db), token: str = Depends(JWTBearer())):
     email = decode_jwt_token(token)
     if email is None:
-        return ResponseSchema(status = False, response = msg['wrong_token'], data = None)
+        return ResponseSchema(status=False, response=msg['wrong_token'], data=None)
+
     user = db.query(UserModel).filter(UserModel.email == email).first()
 
-    new_company = await company_service.create_company(company_name = company_name, company_email = company_email, company_number = company_number, company_zipcode = company_zipcode, company_city = company_city, company_state = company_state, company_country = company_country, company_profile = company_profile,  user_id = user.id, db = db)
+    new_company = await company_service.create_company(company_data=company_data, user_id=user.id, db=db)
 
     if new_company:
-        return ResponseSchema(status = True, response = msg["company_register"], data = new_company)
+        return ResponseSchema(status=True, response=msg["company_register"], data=new_company)
     else:
-        return ResponseSchema(status = False, response = msg["company_already_exists"], data = None)
+        return ResponseSchema(status=False, response=msg["company_already_exists"], data=None)
+
 
     
 

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, load_only, joinedload
 from app.models.company_model import CompanyModel
 from app.models.user_company_model import UserCompany
 from app.models.user_model import UserModel
+from app.schemas.company_register_schema import CompanyRegisterSchema
 from app.schemas.company_response_schema import *
 from app.schemas.company_update_schema import CompanyUpdateSchema
 from datetime import datetime
@@ -22,21 +23,21 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL")
 
 # create a company
-async def create_company(company_name: str, company_email: str, company_number: str, company_zipcode: Optional[str], company_city: Optional[str], company_state: Optional[str], company_country: Optional[str], company_profile: Optional[str], user_id: int, db: Session):
+async def create_company( company_data: CompanyRegisterSchema, user_id: int, db: Session):
     try:
-        existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company_email).first()
+        existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company_data.company_email).first()
 
         if existing_company:
             return None
-        
+
         new_company = CompanyModel(
-            company_name=company_name,
-            company_email=company_email,
-            company_number=company_number,
-            company_zipcode=company_zipcode,
-            company_city=company_city,
-            company_state=company_state,
-            company_country=company_country,
+            company_name=company_data.company_name,
+            company_email=company_data.company_email,
+            company_number=company_data.company_number,
+            company_zipcode=company_data.company_zipcode,
+            company_city=company_data.company_city,
+            company_state=company_data.company_state,
+            company_country=company_data.company_country,
             user_id=user_id,
             uuid=str(uuid.uuid4())
         )
@@ -45,13 +46,13 @@ async def create_company(company_name: str, company_email: str, company_number: 
         db.refresh(new_company)
 
         company_profile_path = None
-        if company_profile:
-            if company_profile.startswith("data:"):
-                header, company_profile = company_profile.split(",", 1)
+        if company_data.company_profile:
+            if company_data.company_profile.startswith("data:"):
+                header, company_profile = company_data.company_profile.split(",", 1)
             file_data = base64.b64decode(company_profile)
             image = Image.open(BytesIO(file_data))
             file_extension = f".{image.format.lower()}"
-            
+
             timestamp = int(datetime.now().timestamp())
             company_profile_path = f"uploads/company/{new_company.id}_{timestamp}{file_extension}"
 
