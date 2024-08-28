@@ -15,6 +15,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from typing import Optional
 import os
 from dotenv import load_dotenv
+from app.helper.email_sender import Helper
 
 
 load_dotenv()
@@ -24,6 +25,9 @@ BASE_URL = os.getenv("BASE_URL")
 # New user register
 async def create_user(name: str, email: str, password: str, role_id: int, city: str, state: str, country: str, profile_img: Optional[UploadFile], background_tasks: BackgroundTasks, db: Session):
     try:
+        if not Helper.is_valid_email(email):
+            return 1
+        
         role = db.query(Role).filter(Role.id == role_id).first()
         if not role:
             return None

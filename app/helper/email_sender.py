@@ -1,5 +1,6 @@
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import re
 from fastapi import Depends, HTTPException, Header, Request
 from requests import Session
 from app.auth.jwt_handler import decode_jwt_token
@@ -11,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.models.company_model import CompanyModel
 from config.database import get_db
 from app.models.user_model import UserModel
+from typing import Optional 
 
 
 class Helper:
@@ -69,30 +71,40 @@ class Helper:
         except Exception as e:
             print(f"Failed to send email to {receiver_email}: {str(e)}")
 
-    
 
-    # def getAuthUser(request: Request, db: Session = Depends(get_db)):
-    #     try:
-    #         authorization: str = request.headers.get("Authorization")
+
+    # get authenticated user from the request
+    def getAuthUser(request: Request, db: Session = Depends(get_db)):
+        try:
+            authorization: str = request.headers.get("Authorization")
             
-    #         if not authorization or not authorization.startswith("Bearer "):
-    #             raise HTTPException(status_code=401, detail="Authorization header missing or malformed")
+            if not authorization or not authorization.startswith("Bearer "):
+               raise HTTPException(status_code=401, detail="Authorization header missing")
 
-    #         token = authorization.split(" ")[1]
+            token = authorization.split(" ")[1]
             
-    #         email = decode_jwt_token(token)
-    #         if not email:
-    #             raise HTTPException(status_code=401, detail="Invalid or expired token")
+            email = decode_jwt_token(token)
+            if not email:
+                raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    #         user = db.query(UserModel).filter(UserModel.email == email).first()
+            user = db.query(UserModel).filter(UserModel.email == email).first()
 
-    #         if not user:
-    #             raise HTTPException(status_code=404, detail="User not found")
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
 
-    #         return user
-    #     except Exception as e:
-    #         print("Exception occurred:", str(e))
-    #         raise HTTPException(status_code=500, detail="An internal error occurred")
+            return user
+        except Exception as e:
+            print("Exception occurred:", str(e))
+
+
+
+    # email validator 
+    def is_valid_email(email: str):
+        try:
+            email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            return re.match(email_regex, email) is not None
+        except Exception as e:
+            print("Exception occurred:", str(e))
         
         
 

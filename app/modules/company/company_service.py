@@ -1,10 +1,11 @@
 import base64
 from typing import Optional
-from fastapi import Header
+from fastapi import Header, Request
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session, load_only, joinedload
 from app.auth.jwt_handler import decode_jwt_token
+from app.helper.email_sender import Helper
 from app.models.company_model import CompanyModel
 from app.models.roles_model import Role
 from app.models.company_images import CompanyImage
@@ -27,20 +28,26 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL")
 
 # create a new company
-async def create_company(company_data: CompanyRegisterSchema, token: str, db: Session):
+async def create_company(company_data: CompanyRegisterSchema, request: Request, db: Session):
     try:
-        email = decode_jwt_token(token)
-        if not email:
-            return None
+        # email = decode_jwt_token(token)
+        # if not email:
+        #     return None
 
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return None
+        user = Helper.getAuthUser(request, db)
         if not user:
             return None
+        
+        if not Helper.is_valid_email(company_data.company_email):
+            return 1
 
         # Ensure the user has the 'superadmin' role
         role = db.query(Role).filter(Role.id == user.role_id).first()
         if not role or role.id != 1:
-            return 1  # Not authorized to create company
+            return 2  # Not authorized to create company
 
         existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company_data.company_email).first()
         if existing_company:
@@ -129,13 +136,16 @@ async def create_company(company_data: CompanyRegisterSchema, token: str, db: Se
 
 
 # get all company information
-def get_all_company(token: str, db: Session, params: Params, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
+def get_all_company(request: Request, db: Session, params: Params, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     try:
-        email = decode_jwt_token(token)
-        if email is None:
-            return None
+        # email = decode_jwt_token(token)
+        # if email is None:
+        #     return None
 
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return None
+        user = Helper.getAuthUser(request, db)
         if not user:
             return None
 
@@ -165,13 +175,16 @@ def get_all_company(token: str, db: Session, params: Params, sort_by: Optional[s
 
 
 # get company by id
-def get_company_by_id(company_id: int, token: str, db: Session):
+def get_company_by_id(company_id: int, request: Request, db: Session):
     try:
-        email = decode_jwt_token(token)
-        if email is None:
-            return None
+        # email = decode_jwt_token(token)
+        # if email is None:
+        #     return None
         
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return None
+        user = Helper.getAuthUser(request, db)
         if not user:
             return None
 
@@ -193,13 +206,16 @@ def get_company_by_id(company_id: int, token: str, db: Session):
 
 
 # delete company by id
-def delete_company_by_id(company_id: int, token: str, db: Session):
+def delete_company_by_id(company_id: int, request: Request, db: Session):
     try:
-        email = decode_jwt_token(token)
-        if email is None:
-            return None
+        # email = decode_jwt_token(token)
+        # if email is None:
+        #     return None
         
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return None
+        user = Helper.getAuthUser(request, db)
         if not user:
             return None
 
@@ -226,13 +242,16 @@ def delete_company_by_id(company_id: int, token: str, db: Session):
 
 
 # update company by id 
-def update_company_by_id(company_id: int,  token: str, db: Session, company_data: CompanyUpdateSchema):
+def update_company_by_id(company_id: int,  request: Request, db: Session, company_data: CompanyUpdateSchema):
     try:
-        email = decode_jwt_token(token)
-        if email is None:
-            return None
+        # email = decode_jwt_token(token)
+        # if email is None:
+        #     return None
         
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return None
+        user = Helper.getAuthUser(request, db)
         if not user:
             return None
 
@@ -289,35 +308,38 @@ def update_company_by_id(company_id: int,  token: str, db: Session, company_data
 
 
 # add user to specific company
-def add_user_to_company(company_id: int, user_id: int, token: str, db: Session):
+def add_user_to_company(company_id: int, request: Request, user_id: int, db: Session):
     try:
-        email = decode_jwt_token(token)
-        if email is None:
-            return 1  # Wrong token
+        # email = decode_jwt_token(token)
+        # if email is None:
+        #     return 1  # Wrong token
         
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return 2  # User not found
+        user = Helper.getAuthUser(request, db)
         if not user:
-            return 2  # User not found
+            return 1 # User not found
 
         if user.role_id != 2:
-            return 3  # Not authorized
+            return 2  # Not authorized
         
         company = db.query(CompanyModel).filter(CompanyModel.id == company_id).first()
         if not company:
-            return 4  # Company not found
+            return 3  # Company not found
         
         user_to_add = db.query(UserModel).filter(UserModel.id == user_id).first()
         if not user_to_add:
-            return 5  # User to add not found
+            return 4  # User to add not found
         
         existing_user_company = db.query(UserCompany).filter_by(user_id=user_id, company_id=company_id).first()
         if existing_user_company:
-            return 6  # User already in the company
+            return 5  # User already in the company
         
         user_association = db.query(UserCompany).filter_by(user_id=user_id).first()
         if user_association:
             user_associated_company = db.query(CompanyModel).filter(CompanyModel.id == user_association.company_id).first()
-            return 7  # User in another company
+            return 6  # User in another company
         
         user_company = UserCompany(user_id=user_id, company_id=company_id)
         db.add(user_company)
@@ -338,24 +360,27 @@ def add_user_to_company(company_id: int, user_id: int, token: str, db: Session):
 
 
 
-def get_company_users(company_id: int, token: str, db: Session):
+def get_company_users(company_id: int, request: Request, db: Session):
     try:
-        email = decode_jwt_token(token)
-        if email is None:
-            return 1  # Wrong token
+        # email = decode_jwt_token(token)
+        # if email is None:
+        #     return 1  # Wrong token
 
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return None
+        user = Helper.getAuthUser(request, db)
         if not user:
             return None
             # return 2  # User not found
 
         company = db.query(CompanyModel).filter(CompanyModel.id == company_id).first()
         if not company:
-            return 2  # Company not found
+            return 1  # Company not found
 
         # Check if the user has role_id 1 (superadmin) or role_id 2 (companyadmin)
         if user.role_id != 1 and user.role_id != 2:
-            return 3  # Not authorized to view the company
+            return 2  # Not authorized to view the company
 
         users = db.query(UserModel).join(UserCompany).filter(UserCompany.company_id == company_id).all()
 
@@ -372,7 +397,7 @@ def get_company_users(company_id: int, token: str, db: Session):
         )
 
         if not company_with_users.users:
-            return 4  # No users found
+            return 3  # No users found
 
         return company_with_users
     except Exception as e:
@@ -382,14 +407,17 @@ def get_company_users(company_id: int, token: str, db: Session):
 
 
 # get created and updated time of the company
-def get_company_details_by_id(company_id: int, token: str,  db: Session):
+def get_company_details_by_id(company_id: int, request: Request,  db: Session):
     try:
-        email = decode_jwt_token(token)
+        # email = decode_jwt_token(token)
 
-        if email is None:
-            return None
+        # if email is None:
+        #     return None
 
-        user = db.query(UserModel).filter(UserModel.email == email).first()
+        # user = db.query(UserModel).filter(UserModel.email == email).first()
+        # if not user:
+        #     return None
+        user = Helper.getAuthUser(request, db)
         if not user:
             return None
 

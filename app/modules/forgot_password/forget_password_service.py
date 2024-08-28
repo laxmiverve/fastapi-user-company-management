@@ -12,6 +12,9 @@ otp_storage: Dict[str, Tuple[str, datetime]] = {}
 # send forgot password OTP
 def send_forgot_password_otp(email: str, background_tasks: BackgroundTasks, db: Session):
     try:
+        if not Helper.is_valid_email(email):
+            return 1
+        
         user = db.query(UserModel).filter(UserModel.email == email).first()
         if not user:
             return None
@@ -44,6 +47,9 @@ def send_forgot_password_otp(email: str, background_tasks: BackgroundTasks, db: 
 # verify the OTP
 def verify_otp(email: str, otp: int, db: Session):
     try:
+        if not Helper.is_valid_email(email):
+            return 1
+        
         stored_data = otp_storage.get(email)
 
         if stored_data is None:
@@ -67,6 +73,9 @@ def verify_otp(email: str, otp: int, db: Session):
 # change user password
 def change_password(email: str, otp: int, new_password: str, confirm_password: str, db: Session):
     try:
+        if not Helper.is_valid_email(email):
+            return 1
+        
         stored_data = otp_storage.get(email)
         if not stored_data:
             return {"message": "Invalid OTP"}

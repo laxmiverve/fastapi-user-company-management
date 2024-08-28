@@ -53,5 +53,6 @@
     "users_found" : "User found successfully in this company",
     "no_users_found" : "No user is found in this company",
 
-    "company_details_fetched": "Successfully get company information"
+    "company_details_fetched": "Successfully get company information",
+    "invalid_email_format": "Entered email address not in a valid format"
 }
