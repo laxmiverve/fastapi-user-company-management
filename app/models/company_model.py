@@ -16,8 +16,8 @@ class CompanyModel(Base):
     company_profile = Column(String(100), nullable = True)
     uuid = Column(String(50), nullable = False)
 
-    # store company images
-    company_images = Column(String(100), nullable = True)
+    # # store company images
+    # company_images = Column(String(100), nullable = True)
 
     created_at = Column(TIMESTAMP, nullable = False, server_default = text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
@@ -26,3 +26,4 @@ class CompanyModel(Base):
     company_creator = relationship('UserModel', back_populates = 'companies', primaryjoin = 'CompanyModel.user_id == UserModel.id', lazy = 'joined')
 
     company_users = relationship('UserCompany', back_populates = 'company', lazy = 'joined')
+    images = relationship('CompanyImage', back_populates='company', lazy='joined')

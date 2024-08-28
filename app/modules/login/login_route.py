@@ -23,16 +23,25 @@ def login_user(login_data: LoginSchema, db: Session = Depends(get_db)):
 
 
 # Get user information by access token
-@router.get("/info", summary="Get User Information", response_model = ResponseSchema[UserInformationSchema])
-def get_user_info(token: Optional[str] = Header(None), db: Session = Depends(get_db)):
+# @router.get("/info", summary="Get User Information", response_model = ResponseSchema[UserInformationSchema])
+# def get_user_info(token: Optional[str] = Header(None), db: Session = Depends(get_db)):
 
-    if not token:
-        return ResponseSchema(status = False, response = msg['access_token_not_found'], data = None)
+#     if not token:
+#         return ResponseSchema(status = False, response = msg['access_token_not_found'], data = None)
 
-    user_info = user_login_service.userinfo_by_token(token, db)
+#     user_info = user_login_service.userinfo_by_token(token, db)
     
-    if user_info is not None:
-        return ResponseSchema(status = True, response = msg['user_info_found'], data = user_info)
+#     if user_info is not None:
+#         return ResponseSchema(status = True, response = msg['user_info_found'], data = user_info)
+#     else:
+#         return ResponseSchema(status = False, response = msg["invalid_token"], data = None)
+@router.get("/info", summary="Get User Information", response_model=ResponseSchema[UserInformationSchema])
+def get_user_info(token: Optional[str] = Header(None), db: Session = Depends(get_db)):
+    user_info = user_login_service.userinfo_by_token(token=token, db=db)
+    
+    if user_info == 1:
+        return ResponseSchema(status=False, response=msg['access_token_not_found'], data=None)
+    elif user_info:
+        return ResponseSchema(status=True, response=msg['user_info_found'], data=user_info)
     else:
-        return ResponseSchema(status = False, response = msg["invalid_token"], data = None)
-                              
+        return ResponseSchema(status=False, response=msg["invalid_token"], data=None)

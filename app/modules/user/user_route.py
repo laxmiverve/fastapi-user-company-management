@@ -14,7 +14,7 @@ router = APIRouter(prefix="/user", tags=["User"])
 
 # New user register
 @router.post('/register', summary="Register new users", response_model=ResponseSchema[UserResponseSchema])
-async def register_user(background_tasks: BackgroundTasks, name: str = Form(...), email: str = Form(...), password: str = Form(...), role_id: int = Form(...), city: str = Form(...), state: str = Form(...), country: str = Form(...), profile_img: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
+async def register_user(background_tasks: BackgroundTasks, name: str = Form(...), email: str = Form(...), password: str = Form(...), role_id: int = Form(...), city: str = Form(None), state: str = Form(None), country: str = Form(None), profile_img: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
 
     new_user = await user_service.create_user(name=name, email=email, password=password, role_id=role_id, city=city, state=state, country=country, profile_img=profile_img, background_tasks=background_tasks, db=db)
     

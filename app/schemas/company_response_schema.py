@@ -22,6 +22,7 @@ class CompanyResponseSchema(BaseModel):
     company_state: str
     company_country: str
     company_profile: Optional[str]
+    company_images: Optional[list] = None
     company_creator: CompanyCreatorSchema
 
     class Config:

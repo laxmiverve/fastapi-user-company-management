@@ -38,6 +38,9 @@ def login_user(email: str, password: str, db: Session):
 # get user information by access token
 def userinfo_by_token(token: str, db: Session):
     try:
+        if not token:
+            return 1  # token was not found
+        
         email = decode_jwt_token(token)
         
         if email is None:
