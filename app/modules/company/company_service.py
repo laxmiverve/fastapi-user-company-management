@@ -4,7 +4,6 @@ from fastapi import Header, Request
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session, load_only, joinedload
-from app.auth.jwt_handler import decode_jwt_token
 from app.helper.email_sender import Helper
 from app.models.company_model import CompanyModel
 from app.models.roles_model import Role
@@ -30,13 +29,6 @@ BASE_URL = os.getenv("BASE_URL")
 # create a new company
 async def create_company(company_data: CompanyRegisterSchema, request: Request, db: Session):
     try:
-        # email = decode_jwt_token(token)
-        # if not email:
-        #     return None
-
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return None
         user = Helper.getAuthUser(request, db)
         if not user:
             return None
@@ -111,8 +103,6 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
 
         company_profile_url = f"{BASE_URL}{company_profile_image}" if company_profile_image else None
         company_images_urls = [f"{BASE_URL}{img}" for img in company_images]
-        # print("============company_images_urls====================",company_images_urls)
-        # new_company.company_images = company_images_urls
         response = {
             "id": new_company.id,
             "company_name": new_company.company_name,
@@ -127,8 +117,6 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
             "company_creator": new_company.company_creator,
             "uuid": new_company.uuid,
         }
-        # response["company_images"] = company_images_urls
-        # print("===========11111111111=========",response["company_images"])
         return response
     except Exception as e:
         print("An exception occurred:", str(e))
@@ -138,13 +126,6 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
 # get all company information
 def get_all_company(request: Request, db: Session, params: Params, sort_by: Optional[str] = None, sort_direction: Optional[str] = None):
     try:
-        # email = decode_jwt_token(token)
-        # if email is None:
-        #     return None
-
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return None
         user = Helper.getAuthUser(request, db)
         if not user:
             return None
@@ -177,13 +158,6 @@ def get_all_company(request: Request, db: Session, params: Params, sort_by: Opti
 # get company by id
 def get_company_by_id(company_id: int, request: Request, db: Session):
     try:
-        # email = decode_jwt_token(token)
-        # if email is None:
-        #     return None
-        
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return None
         user = Helper.getAuthUser(request, db)
         if not user:
             return None
@@ -208,13 +182,6 @@ def get_company_by_id(company_id: int, request: Request, db: Session):
 # delete company by id
 def delete_company_by_id(company_id: int, request: Request, db: Session):
     try:
-        # email = decode_jwt_token(token)
-        # if email is None:
-        #     return None
-        
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return None
         user = Helper.getAuthUser(request, db)
         if not user:
             return None
@@ -244,13 +211,6 @@ def delete_company_by_id(company_id: int, request: Request, db: Session):
 # update company by id 
 def update_company_by_id(company_id: int,  request: Request, db: Session, company_data: CompanyUpdateSchema):
     try:
-        # email = decode_jwt_token(token)
-        # if email is None:
-        #     return None
-        
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return None
         user = Helper.getAuthUser(request, db)
         if not user:
             return None
@@ -302,7 +262,6 @@ def update_company_by_id(company_id: int,  request: Request, db: Session, compan
             uuid = existing_company.uuid
             )
 
-        # return existing_company
     except Exception as e:
         print("Exception occurred:", str(e))
 
@@ -310,13 +269,6 @@ def update_company_by_id(company_id: int,  request: Request, db: Session, compan
 # add user to specific company
 def add_user_to_company(company_id: int, request: Request, user_id: int, db: Session):
     try:
-        # email = decode_jwt_token(token)
-        # if email is None:
-        #     return 1  # Wrong token
-        
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return 2  # User not found
         user = Helper.getAuthUser(request, db)
         if not user:
             return 1 # User not found
@@ -362,13 +314,6 @@ def add_user_to_company(company_id: int, request: Request, user_id: int, db: Ses
 
 def get_company_users(company_id: int, request: Request, db: Session):
     try:
-        # email = decode_jwt_token(token)
-        # if email is None:
-        #     return 1  # Wrong token
-
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return None
         user = Helper.getAuthUser(request, db)
         if not user:
             return None
@@ -409,14 +354,6 @@ def get_company_users(company_id: int, request: Request, db: Session):
 # get created and updated time of the company
 def get_company_details_by_id(company_id: int, request: Request,  db: Session):
     try:
-        # email = decode_jwt_token(token)
-
-        # if email is None:
-        #     return None
-
-        # user = db.query(UserModel).filter(UserModel.email == email).first()
-        # if not user:
-        #     return None
         user = Helper.getAuthUser(request, db)
         if not user:
             return None
