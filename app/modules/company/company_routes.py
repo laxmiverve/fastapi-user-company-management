@@ -132,7 +132,7 @@ def get_company_with_users_route(company_id: int, request: Request, db: Session 
 
 
 # get created and updated time of the company
-@router.get("/companyinfo/{company_id}", response_model=ResponseSchema)
+@router.get("/companyinfo/{company_id}", summary="Get created and updated time of the company", response_model=ResponseSchema, dependencies=[Depends(JWTBearer())])
 def get_company_details(company_id: int, request: Request, db: Session = Depends(get_db)):
     company_details = company_service.get_company_details_by_id(company_id=company_id, db=db, request=request)
     
