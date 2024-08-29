@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class CompanyRegisterSchema(BaseModel):
     company_name: str
@@ -9,7 +9,8 @@ class CompanyRegisterSchema(BaseModel):
     company_city: Optional[str] = None
     company_state: Optional[str] = None
     company_country: Optional[str] = None
-    company_profile: Optional[str] = None
+    # company_profile: Optional[str] = None
+    company_profile: Optional[List[str]] 
 
     class Config():
         from_attributes = True

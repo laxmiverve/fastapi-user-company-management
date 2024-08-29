@@ -27,6 +27,99 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL")
 
 # create a new company
+# async def create_company(company_data: CompanyRegisterSchema, request: Request, db: Session):
+#     try:
+#         user = Helper.getAuthUser(request, db)
+#         if not user:
+#             return None
+        
+#         if not Helper.is_valid_email(company_data.company_email):
+#             return 1
+
+#         # Ensure the user has the 'superadmin' role
+#         role = db.query(Role).filter(Role.id == user.role_id).first()
+#         if not role or role.id != 1:
+#             return 2  # Not authorized to create company
+
+#         existing_company = db.query(CompanyModel).filter(CompanyModel.company_email == company_data.company_email).first()
+#         if existing_company:
+#             return None  
+
+#         new_company = CompanyModel(
+#             company_name=company_data.company_name,
+#             company_email=company_data.company_email,
+#             company_number=company_data.company_number,
+#             company_zipcode=company_data.company_zipcode,
+#             company_city=company_data.company_city,
+#             company_state=company_data.company_state,
+#             company_country=company_data.company_country,
+#             user_id=user.id,
+#             uuid=str(uuid.uuid4())
+#         )
+#         db.add(new_company)
+#         db.commit()
+#         db.refresh(new_company)
+
+#         company_images = []
+#         company_profile_image = None
+
+#         if company_data.company_profile:
+#             image_data_list = company_data.company_profile.split("data:")
+
+#             for index, image_data in enumerate(image_data_list):
+#                 if image_data:
+#                     if "," in image_data:
+#                         header, image_data = image_data.split(",", 1)
+#                     else:
+#                         image_data = image_data.strip()
+
+#                     file_data = base64.b64decode(image_data)
+#                     image = Image.open(BytesIO(file_data))
+#                     file_extension = f".{image.format.lower()}"
+                    
+#                     timestamp = int(datetime.now().timestamp())
+#                     image_path = f"uploads/company/{new_company.id}_{timestamp}_{index}{file_extension}"
+                    
+#                     with open(image_path, "wb") as file:
+#                         file.write(file_data)
+                    
+#                     company_images.append(image_path)
+
+#                     if index == 1:
+#                         company_profile_image = image_path
+
+#         for image_path in company_images:
+#             company_image = CompanyImage(
+#                 image_path=image_path,
+#                 company_id=new_company.id
+#             )
+#             db.add(company_image)
+        
+#         db.commit()
+
+#         if company_profile_image:
+#             new_company.company_profile = company_profile_image
+#             db.commit()
+
+#         company_profile_url = f"{BASE_URL}{company_profile_image}" if company_profile_image else None
+#         company_images_urls = [f"{BASE_URL}{img}" for img in company_images]
+#         response = {
+#             "id": new_company.id,
+#             "company_name": new_company.company_name,
+#             "company_email": new_company.company_email,
+#             "company_number": new_company.company_number,
+#             "company_zipcode": new_company.company_zipcode,
+#             "company_city": new_company.company_city,
+#             "company_state": new_company.company_state,
+#             "company_country": new_company.company_country,
+#             "company_profile": company_profile_url,
+#             "company_images": company_images_urls,
+#             "company_creator": new_company.company_creator,
+#             "uuid": new_company.uuid,
+#         }
+#         return response
+#     except Exception as e:
+#         print("An exception occurred:", str(e))
 async def create_company(company_data: CompanyRegisterSchema, request: Request, db: Session):
     try:
         user = Helper.getAuthUser(request, db)
@@ -64,9 +157,7 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
         company_profile_image = None
 
         if company_data.company_profile:
-            image_data_list = company_data.company_profile.split("data:")
-
-            for index, image_data in enumerate(image_data_list):
+            for index, image_data in enumerate(company_data.company_profile):
                 if image_data:
                     if "," in image_data:
                         header, image_data = image_data.split(",", 1)
@@ -77,15 +168,16 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
                     image = Image.open(BytesIO(file_data))
                     file_extension = f".{image.format.lower()}"
                     
+                    image_number = index + 1
                     timestamp = int(datetime.now().timestamp())
-                    image_path = f"uploads/company/{new_company.id}_{timestamp}_{index}{file_extension}"
+                    image_path = f"uploads/company/{new_company.id}_{timestamp}_{image_number}{file_extension}"
                     
                     with open(image_path, "wb") as file:
                         file.write(file_data)
                     
                     company_images.append(image_path)
 
-                    if index == 1:
+                    if index == 0:  
                         company_profile_image = image_path
 
         for image_path in company_images:
@@ -103,6 +195,7 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
 
         company_profile_url = f"{BASE_URL}{company_profile_image}" if company_profile_image else None
         company_images_urls = [f"{BASE_URL}{img}" for img in company_images]
+
         response = {
             "id": new_company.id,
             "company_name": new_company.company_name,
@@ -113,7 +206,7 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
             "company_state": new_company.company_state,
             "company_country": new_company.company_country,
             "company_profile": company_profile_url,
-            "company_images": company_images_urls,
+            "company_images": company_images_urls,  
             "company_creator": new_company.company_creator,
             "uuid": new_company.uuid,
         }
