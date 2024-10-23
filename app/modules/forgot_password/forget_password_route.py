@@ -5,10 +5,10 @@ from app.schemas.response_schema import ResponseSchema
 from app.schemas.forget_password_schema import *
 from config.database import get_db, msg
 
-router = APIRouter(tags=["Forgot Password"])
+router = APIRouter(prefix="/api/forget_password", tags=["Forgot Password"])
 
 # send forgot password OTP
-@router.post("/otp_sent", summary = "Send forgot password OTP", response_model = ResponseSchema[SentOtpResponseSchema])
+@router.post("/otp/sent", summary = "Send forgot password OTP", response_model = ResponseSchema[SentOtpResponseSchema])
 def forgot_password(request: SentForgotPasswordOTPSchema, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     forget_pwd = forget_password_service.send_forgot_password_otp(email = request.email, background_tasks = background_tasks, db = db)
     if forget_pwd == 1:
@@ -21,7 +21,7 @@ def forgot_password(request: SentForgotPasswordOTPSchema, background_tasks: Back
 
 
 # verify the OTP
-@router.post("/otp_verify", summary = "Verify the OTP", response_model = ResponseSchema[VerifyOtpResponseSchema])
+@router.post("/otp/verify", summary = "Verify the OTP", response_model = ResponseSchema[VerifyOtpResponseSchema])
 def otp_verification(request: VerifyForgotPasswordOTPSchema, db: Session = Depends(get_db)):
     otp_verify = forget_password_service.verify_otp(email = request.email, otp = request.otp, db = db)
 

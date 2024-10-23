@@ -9,7 +9,7 @@ from app.auth.jwt_bearer import JWTBearer
 from app.schemas.user_update_schema import UserUpdateSchema
 from app.schemas.user_response_schema import UserResponseSchema
 
-router = APIRouter(prefix="/user", tags=["User"])  
+router = APIRouter(prefix="/api/user", tags=["User"])  
 
 
 # New user register
@@ -62,7 +62,7 @@ def delete_user(id: int, db: Session = Depends(get_db)):
 
 
 # Update current logged user
-@router.put('/update', summary="Update user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
+@router.put('/update/loggeduser', summary="Update current logged user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def update_user_info(user_update_data: UserUpdateSchema, token: str = Depends(JWTBearer()), db: Session = Depends(get_db)):
     update_user = user_service.update_user_info(user_update_data = user_update_data, token = token, db = db)

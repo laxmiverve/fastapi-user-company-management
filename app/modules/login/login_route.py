@@ -8,7 +8,7 @@ from app.schemas.response_schema import ResponseSchema
 from app.schemas.user_login_schema import LoginSchema, LoginResponseSchema
 
 
-router = APIRouter(prefix="/user", tags=["Login"])
+router = APIRouter(prefix="/api/user", tags=["Login"])
 
 # User login
 @router.post('/login', summary="User login", response_model = ResponseSchema[LoginResponseSchema])
@@ -24,7 +24,7 @@ def login_user(login_data: LoginSchema, db: Session = Depends(get_db)):
 
 
 # Get user information by access token
-@router.get("/info", summary="Get User Information", response_model=ResponseSchema[UserInformationSchema])
+@router.get("/info", summary="Get User Information by Access Token", response_model=ResponseSchema[UserInformationSchema])
 def get_user_info(token: Optional[str] = Header(None), db: Session = Depends(get_db)):
     user_info = user_login_service.userinfo_by_token(token=token, db=db)
     

@@ -13,7 +13,7 @@ from app.schemas.company_update_schema import CompanyUpdateSchema
 from fastapi import Request
 
 
-router = APIRouter(prefix="/company", tags = ["Company"])
+router = APIRouter(prefix="/api/company", tags = ["Company"])
 
 
 # Register a new company
@@ -46,7 +46,7 @@ def list_companies(request: Request, params: Params = Depends(), db: Session = D
 
 
 # Get company information by id 
-@router.get("/{company_id}", summary="Get company information by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+@router.get("/{companyId}", summary="Get company information by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 def view_company(company_id: int, request: Request, db: Session = Depends(get_db)):
     get_company = company_service.get_company_by_id(company_id=company_id, request=request, db=db)
     
@@ -60,7 +60,7 @@ def view_company(company_id: int, request: Request, db: Session = Depends(get_db
 
 
 # Delete compapny by id
-@router.delete("/delete/{company_id}", summary="Delete company by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+@router.delete("/delete/{companyId}", summary="Delete company by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 def delete_company(company_id: int, request: Request, db: Session = Depends(get_db)):
     delete_company = company_service.delete_company_by_id(company_id=company_id, request=request, db=db)
     
@@ -74,7 +74,7 @@ def delete_company(company_id: int, request: Request, db: Session = Depends(get_
     
     
 # Update company by id
-@router.put("/update/{company_id}", summary="Update company by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+@router.put("/update/{companyId}", summary="Update company by ID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 def update_company(company_id: int, request: Request, company_data: CompanyUpdateSchema, db: Session = Depends(get_db)):
     updated_company = company_service.update_company_by_id(company_id=company_id, company_data=company_data, request=request, db=db)
     
@@ -88,7 +88,7 @@ def update_company(company_id: int, request: Request, company_data: CompanyUpdat
 
 
 # add user in the specific company 
-@router.post("/add_user/{company_id}/{user_id}", summary="Add user to a company", response_model=ResponseSchema[UserCompanySchema], dependencies=[Depends(JWTBearer())])
+@router.post("/adduser/{companyId}/{userId}", summary="Add user to a company", response_model=ResponseSchema[UserCompanySchema], dependencies=[Depends(JWTBearer())])
 def add_user_to_company_route(company_id: int, request: Request, user_id: int, db: Session = Depends(get_db)):
     result = company_service.add_user_to_company(company_id=company_id, user_id=user_id, request=request, db=db)
     
@@ -112,7 +112,7 @@ def add_user_to_company_route(company_id: int, request: Request, user_id: int, d
 
 
 # get all users of a company by company_id
-@router.get("/userlist/{company_id}", summary="Get company details with associated users", response_model=ResponseSchema[CompanyWithUsersSchema], dependencies=[Depends(JWTBearer())])
+@router.get("/userlist/{companyId}", summary="Get company details with associated users", response_model=ResponseSchema[CompanyWithUsersSchema], dependencies=[Depends(JWTBearer())])
 def get_company_with_users_route(company_id: int, request: Request, db: Session = Depends(get_db)):
     company_with_users = company_service.get_company_users(company_id=company_id, request=request, db=db)
     
@@ -128,7 +128,7 @@ def get_company_with_users_route(company_id: int, request: Request, db: Session 
 
 
 # get created and updated time of the company
-@router.get("/companyinfo/{company_id}", summary="Get created and updated time of the company", response_model=ResponseSchema, dependencies=[Depends(JWTBearer())])
+@router.get("/companyinfo/{companyId}", summary="Get created and updated time of the company", response_model=ResponseSchema, dependencies=[Depends(JWTBearer())])
 def get_company_details(company_id: int, request: Request, db: Session = Depends(get_db)):
     company_details = company_service.get_company_details_by_id(company_id=company_id, db=db, request=request)
     
@@ -142,7 +142,7 @@ def get_company_details(company_id: int, request: Request, db: Session = Depends
 
 
 # get company details by using UUID (pass the uuid in header)
-@router.post("/info", summary="Get company details by UUID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
+@router.post("/info/uuid", summary="Get company details by UUID", response_model=ResponseSchema[CompanyResponseSchema], dependencies=[Depends(JWTBearer())])
 def get_company_details(uuid: str = Header(None), db: Session = Depends(get_db)):
     company = company_service.get_company_by_uuid(uuid=uuid, db=db)
 

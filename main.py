@@ -1,5 +1,6 @@
 from fastapi.staticfiles import StaticFiles
 import uvicorn
+import os
 from fastapi import FastAPI
 from config.database import engine, Base
 from config.database import SessionLocal
@@ -12,10 +13,19 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+
+# Ensure uploads directory exists
+upload_dir = os.path.join(os.getcwd(), "uploads")
+user_dir = os.path.join(upload_dir, "user")
+company_dir = os.path.join(upload_dir, "company")
+
+os.makedirs(user_dir, exist_ok=True)
+os.makedirs(company_dir, exist_ok=True)
+
+# Mount the uploads directory as a static file route
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 add_pagination(app)
-
 
 Base.metadata.create_all(bind = engine)
 
@@ -43,7 +53,6 @@ app.include_router(forget_password_route.router)
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host = '127.0.0.1', port = 8000, log_level = "info", reload = True)
-
+    uvicorn.run("main:app", host = '192.168.1.53', port = 8000, log_level = "info", reload = True)
     print("running")
 
