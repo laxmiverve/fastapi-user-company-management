@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Ensure uploads directory exists
+# Ensure uploads directory exists, if not then create it
 upload_dir = os.path.join(os.getcwd(), "uploads")
 user_dir = os.path.join(upload_dir, "user")
 company_dir = os.path.join(upload_dir, "company")

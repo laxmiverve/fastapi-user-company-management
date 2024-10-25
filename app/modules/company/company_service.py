@@ -120,6 +120,9 @@ BASE_URL = os.getenv("BASE_URL")
 #         return response
 #     except Exception as e:
 #         print("An exception occurred:", str(e))
+
+
+
 async def create_company(company_data: CompanyRegisterSchema, request: Request, db: Session):
     try:
         user = Helper.getAuthUser(request, db)
@@ -139,14 +142,14 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
             return None  
 
         new_company = CompanyModel(
-            company_name=company_data.company_name,
-            company_email=company_data.company_email,
-            company_number=company_data.company_number,
-            company_zipcode=company_data.company_zipcode,
-            company_city=company_data.company_city,
-            company_state=company_data.company_state,
-            company_country=company_data.company_country,
-            user_id=user.id,
+            company_name = company_data.company_name,
+            company_email = company_data.company_email,
+            company_number = company_data.company_number,
+            company_zipcode = company_data.company_zipcode,
+            company_city = company_data.company_city,
+            company_state = company_data.company_state,
+            company_country = company_data.company_country,
+            user_id = user.id,
             uuid=str(uuid.uuid4())
         )
         db.add(new_company)
@@ -182,8 +185,8 @@ async def create_company(company_data: CompanyRegisterSchema, request: Request, 
 
         for image_path in company_images:
             company_image = CompanyImage(
-                image_path=image_path,
-                company_id=new_company.id
+                image_path = image_path,
+                company_id = new_company.id
             )
             db.add(company_image)
         
@@ -392,12 +395,12 @@ def add_user_to_company(company_id: int, request: Request, user_id: int, db: Ses
         db.refresh(user_company)
         
         return UserCompanySchema(
-            user_id=user_company.user_id,
-            company_id=user_company.company_id,
-            user_name=user_to_add.name,
-            user_email=user_to_add.email,
-            company_name=company.company_name,
-            company_email=company.company_email
+            user_id = user_company.user_id,
+            company_id = user_company.company_id,
+            user_name = user_to_add.name,
+            user_email = user_to_add.email,
+            company_name = company.company_name,
+            company_email = company.company_email
         )
 
     except Exception as e:
@@ -426,12 +429,12 @@ def get_company_users(company_id: int, request: Request, db: Session):
                         for user in users]
 
         company_with_users = CompanyWithUsersSchema(
-            company_id=company.id,
-            company_name=company.company_name,
-            company_email=company.company_email,
-            company_state=company.company_state,
-            company_country=company.company_country,
-            users=user_details
+            company_id = company.id,
+            company_name = company.company_name,
+            company_email = company.company_email,
+            company_state = company.company_state,
+            company_country = company.company_country,
+            users = user_details
         )
 
         if not company_with_users.users:
@@ -466,11 +469,11 @@ def get_company_details_by_id(company_id: int, request: Request,  db: Session):
             return dt.strftime('%Y-%m-%d %H:%M:%S') if dt else None
         
         return CompanyDetailsSchema(
-            company_id=company.id,
-            company_name=company.company_name,
-            description=company.company_profile,
-            created_at=format_datetime(company.created_at),
-            updated_at=format_datetime(company.updated_at),
+            company_id = company.id,
+            company_name = company.company_name,
+            description = company.company_profile,
+            created_at = format_datetime(company.created_at),
+            updated_at = format_datetime(company.updated_at),
             created_by_user={
                 "user_id": created_by_user.id,
                 "user_name": created_by_user.name,

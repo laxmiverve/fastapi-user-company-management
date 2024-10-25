@@ -13,16 +13,16 @@ router = APIRouter(prefix="/api/user", tags=["User"])
 
 
 # New user register
-@router.post('/register', summary="Register new users", response_model=ResponseSchema[UserResponseSchema])
+@router.post('/register', summary = "Register new users", response_model = ResponseSchema[UserResponseSchema])
 async def register_user(background_tasks: BackgroundTasks, name: str = Form(...), email: str = Form(...), password: str = Form(...), role_id: int = Form(...), city: str = Form(None), state: str = Form(None), country: str = Form(None), profile_img: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
 
-    new_user = await user_service.create_user(name=name, email=email, password=password, role_id=role_id, city=city, state=state, country=country, profile_img=profile_img, background_tasks=background_tasks, db=db)
+    new_user = await user_service.create_user(name = name, email = email, password = password, role_id = role_id, city = city, state = state, country = country, profile_img = profile_img, background_tasks = background_tasks, db = db)
     if new_user == 1:
-        return ResponseSchema(status=False, response=msg['invalid_email_format'], data=None)
+        return ResponseSchema(status = False, response = msg['invalid_email_format'], data = None)
     if new_user:
-        return ResponseSchema(status=True, response=msg['user_register'], data=new_user)
+        return ResponseSchema(status = True, response = msg['user_register'], data = new_user)
     else:
-        return ResponseSchema(status=False, response=msg['user_already_exists'], data=None)
+        return ResponseSchema(status = False, response = msg['user_already_exists'], data = None)
 
 
 
@@ -38,7 +38,7 @@ def list_users( params: Params = Depends(), db: Session = Depends(get_db), searc
 
 
 # Get user information by id
-@router.get('/{id}', summary="Get user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
+@router.get('/{id}', summary = "Get user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def get_user(id: int, db: Session = Depends(get_db)):
     user = user_service.show_user(id = id, db = db)
@@ -50,7 +50,7 @@ def get_user(id: int, db: Session = Depends(get_db)):
 
 
 # Delete user by id
-@router.delete('/delete/{id}', summary="Delete user", response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
+@router.delete('/delete/{id}', summary = "Delete user", response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def delete_user(id: int, db: Session = Depends(get_db)):
     delete_user = user_service.delete_user_info(id = id, db = db)
@@ -62,7 +62,7 @@ def delete_user(id: int, db: Session = Depends(get_db)):
 
 
 # Update current logged user
-@router.put('/update/loggeduser', summary="Update current logged user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
+@router.put('/update/loggeduser', summary = "Update current logged user",  response_model = ResponseSchema[UserResponseSchema], dependencies = [Depends(JWTBearer())])
 
 def update_user_info(user_update_data: UserUpdateSchema, token: str = Depends(JWTBearer()), db: Session = Depends(get_db)):
     update_user = user_service.update_user_info(user_update_data = user_update_data, token = token, db = db)

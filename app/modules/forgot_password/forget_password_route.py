@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api/forget_password", tags=["Forgot Password"])
 @router.post("/otp/sent", summary = "Send forgot password OTP", response_model = ResponseSchema[SentOtpResponseSchema])
 def forgot_password(request: SentForgotPasswordOTPSchema, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     forget_pwd = forget_password_service.send_forgot_password_otp(email = request.email, background_tasks = background_tasks, db = db)
+    
     if forget_pwd == 1:
         return ResponseSchema(status = False, response = msg['invalid_email_format'], data = None)
     if forget_pwd is not None:
@@ -37,7 +38,7 @@ def otp_verification(request: VerifyForgotPasswordOTPSchema, db: Session = Depen
 
 
 # change user password
-@router.post("/change_password", summary="Change user password", response_model = ResponseSchema[ChangePasswordResponseSchema])
+@router.post("/change_password", summary = "Change user password", response_model = ResponseSchema[ChangePasswordResponseSchema])
 def change_user_password(request: ChangePasswordSchema, db: Session = Depends(get_db)):
     password_change = forget_password_service.change_password(email = request.email, otp = request.otp, new_password = request.new_password, confirm_password = request.confirm_password, db = db)
 

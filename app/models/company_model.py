@@ -16,9 +16,6 @@ class CompanyModel(Base):
     company_profile = Column(String(100), nullable = True)
     uuid = Column(String(50), nullable = False)
 
-    # # store company images
-    # company_images = Column(String(100), nullable = True)
-
     created_at = Column(TIMESTAMP, nullable = False, server_default = text("CURRENT_TIMESTAMP"))
     updated_at = Column(TIMESTAMP, nullable = True, server_default = text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
 

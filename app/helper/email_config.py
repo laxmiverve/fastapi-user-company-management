@@ -10,5 +10,4 @@ class EmailSettings(BaseSettings):
         env_file = ".env"
         extra = "allow"
 
-
 email_settings = EmailSettings()
